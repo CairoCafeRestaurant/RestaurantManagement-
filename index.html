@@ -3,215 +3,214 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>نظام إدارة المطعم | بخارى - UZS</title>
+  <title>نظام إدارة مطعم بخارى المتكامل | ERP & POS (UZS)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #0f2942;       /* أزرق بخارى الملكي */
-      --primary-light: #1b436b;
-      --accent: #c89b3c;        /* ذهبي دافئ */
-      --bg: #f4f6f9;
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --accent: #d97706;
+      --accent-hover: #b45309;
+      --bg: #f1f5f9;
       --card: #ffffff;
-      --text: #1e293b;
+      --text: #0f172a;
       --muted: #64748b;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
+      --success: #059669;
+      --danger: #dc2626;
       --border: #e2e8f0;
-      --radius: 14px;
+      --radius: 12px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
     body { background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* شاشة تسجيل الدخول */
+    /* شاشة الدخول */
     .login-wrapper {
       display: flex; align-items: center; justify-content: center;
       min-height: 100vh; padding: 20px;
-      background: linear-gradient(135deg, var(--primary) 0%, #091929 100%);
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     }
     .login-card {
       background: var(--card); width: 100%; max-width: 420px;
       padding: 36px 28px; border-radius: var(--radius);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.25); text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3); text-align: center;
     }
     .brand-badge {
-      display: inline-block; background: rgba(200,155,60,0.15); color: var(--accent);
+      display: inline-block; background: #fef3c7; color: var(--accent-hover);
       padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; margin-bottom: 12px;
     }
-    .login-card h1 { color: var(--primary); font-size: 1.6rem; margin-bottom: 6px; }
-    .login-card p { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
-    .input-group { text-align: right; margin-bottom: 16px; }
-    .input-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--primary); }
-    .input-group input {
-      width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 1rem; transition: 0.2s;
+    .login-card h1 { color: var(--primary); font-size: 1.55rem; margin-bottom: 6px; }
+    .login-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 22px; }
+
+    .form-group { text-align: right; margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 5px; color: var(--primary); }
+    .form-group input, .form-group select {
+      width: 100%; padding: 11px 13px; border: 1.5px solid var(--border);
+      border-radius: 9px; font-size: 0.95rem; background: #fff;
     }
-    .input-group input:focus { outline: none; border-color: var(--accent); }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
+
     .btn {
-      width: 100%; padding: 13px; border: none; border-radius: 10px;
-      background: var(--primary); color: #fff; font-size: 1rem; font-weight: 700;
+      width: 100%; padding: 12px; border: none; border-radius: 9px;
+      background: var(--primary); color: #fff; font-size: 0.98rem; font-weight: 700;
       cursor: pointer; transition: 0.2s;
     }
     .btn:hover { background: var(--primary-light); }
-    .btn-gold { background: var(--accent); color: #fff; }
-    .btn-gold:hover { opacity: 0.92; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-gold { background: var(--accent); }
+    .btn-gold:hover { background: var(--accent-hover); }
 
-    /* الهيكل الرئيسي للتطبيق */
+    /* الهيكل الرئيسي */
     .app-container { display: none; }
     header {
       background: var(--primary); color: #fff; padding: 14px 24px;
       display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
       gap: 12px; position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .header-title { display: flex; align-items: center; gap: 10px; }
-    .header-title span { color: var(--accent); font-weight: 800; font-size: 1.25rem; }
+    .header-title span { color: #fbbf24; font-weight: 800; font-size: 1.2rem; }
     .user-pill {
-      background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 20px;
+      background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 20px;
       font-size: 0.85rem; display: flex; align-items: center; gap: 10px;
     }
-    .logout-btn {
-      background: var(--danger); border: none; color: #fff; padding: 4px 10px;
-      border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 700;
-    }
+    .btn-sm { padding: 5px 12px; font-size: 0.8rem; width: auto; border-radius: 6px; }
+    .btn-danger { background: var(--danger); }
 
-    /* شريط التنقل */
     nav {
       background: var(--card); border-bottom: 1px solid var(--border);
-      padding: 0 24px; display: flex; gap: 8px; overflow-x: auto;
+      padding: 0 20px; display: flex; gap: 4px; overflow-x: auto;
     }
     .nav-tab {
-      padding: 14px 18px; border: none; background: none; color: var(--muted);
-      font-weight: 700; font-size: 0.95rem; cursor: pointer;
-      border-bottom: 3px solid transparent; white-space: nowrap; transition: 0.2s;
+      padding: 13px 15px; border: none; background: none; color: var(--muted);
+      font-weight: 700; font-size: 0.9rem; cursor: pointer;
+      border-bottom: 3px solid transparent; white-space: nowrap;
     }
     .nav-tab.active { color: var(--primary); border-bottom-color: var(--accent); }
 
-    main { max-width: 1320px; margin: 24px auto; padding: 0 20px; }
-    .section { display: none; animation: fadeIn 0.25s ease; }
+    main { max-width: 1360px; margin: 22px auto; padding: 0 18px; }
+    .section { display: none; animation: fadeIn 0.2s ease; }
     .section.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* بطاقات المؤشرات */
     .kpi-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 16px; margin-bottom: 24px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px; margin-bottom: 22px;
     }
     .kpi-card {
-      background: var(--card); padding: 20px; border-radius: var(--radius);
-      border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-      border-right: 4px solid var(--primary);
+      background: var(--card); padding: 18px; border-radius: var(--radius);
+      border: 1px solid var(--border); border-right: 4px solid var(--primary);
     }
     .kpi-card.gold { border-right-color: var(--accent); }
     .kpi-card.green { border-right-color: var(--success); }
     .kpi-card.red { border-right-color: var(--danger); }
-    .kpi-label { font-size: 0.85rem; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
-    .kpi-value { font-size: 1.45rem; font-weight: 800; color: var(--primary); }
-    .kpi-sub { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+    .kpi-label { font-size: 0.82rem; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+    .kpi-value { font-size: 1.35rem; font-weight: 800; color: var(--primary); }
+    .kpi-sub { font-size: 0.78rem; color: var(--muted); margin-top: 5px; }
 
-    /* الجداول والشبكات */
-    .grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+    .grid-2 { display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
     @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
 
     .panel {
       background: var(--card); border-radius: var(--radius);
-      border: 1px solid var(--border); padding: 20px; margin-bottom: 20px;
+      border: 1px solid var(--border); padding: 18px; margin-bottom: 18px;
     }
     .panel-header {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+      margin-bottom: 14px; padding-bottom: 9px; border-bottom: 1px solid var(--border);
     }
-    .panel-header h3 { font-size: 1.1rem; color: var(--primary); }
+    .panel-header h3 { font-size: 1.05rem; color: var(--primary); }
 
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th, td { padding: 11px 10px; text-align: right; border-bottom: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 10px 8px; text-align: right; border-bottom: 1px solid var(--border); }
     th { background: #f8fafc; color: var(--primary); font-weight: 700; }
-    tr:hover td { background: #f8fafc; }
 
-    .badge {
-      padding: 4px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 700;
-    }
+    .badge { padding: 3px 9px; border-radius: 10px; font-size: 0.76rem; font-weight: 700; }
     .badge-ok { background: #d1fae5; color: #065f46; }
     .badge-low { background: #fee2e2; color: #991b1b; }
     .badge-gold { background: #fef3c7; color: #92400e; }
 
-    /* شاشة نقطة البيع POS */
-    .pos-menu-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;
-    }
+    /* POS */
+    .pos-menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
     .menu-tile {
-      background: #f8fafc; border: 1.5px solid var(--border); border-radius: 12px;
-      padding: 14px; cursor: pointer; transition: 0.15s; text-align: center;
+      background: #f8fafc; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 14px 10px; cursor: pointer; text-align: center; transition: 0.15s;
     }
     .menu-tile:hover { border-color: var(--accent); background: #fffbeb; }
-    .menu-tile h4 { font-size: 0.95rem; color: var(--primary); margin-bottom: 6px; }
-    .menu-tile .price { font-weight: 800; color: var(--accent); font-size: 0.9rem; }
+    .menu-tile h4 { font-size: 0.92rem; color: var(--primary); margin-bottom: 5px; }
+    .menu-tile .price { font-weight: 800; color: var(--accent-hover); font-size: 0.9rem; }
 
     .cart-item {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 0; border-bottom: 1px dashed var(--border);
+      padding: 9px 0; border-bottom: 1px dashed var(--border);
     }
     .qty-controls button {
       width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border);
       background: #fff; font-weight: 700; cursor: pointer;
     }
 
-    /* أشرطة نسب الدفع */
-    .bar-row { margin-bottom: 12px; }
-    .bar-info { display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; }
-    .bar-track { height: 10px; background: #e2e8f0; border-radius: 8px; overflow: hidden; }
-    .bar-fill { height: 100%; background: var(--primary); border-radius: 8px; transition: width 0.4s ease; }
+    .bar-row { margin-bottom: 11px; }
+    .bar-info { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+    .bar-track { height: 9px; background: #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--primary); border-radius: 8px; }
+
+    .toast {
+      position: fixed; bottom: 20px; left: 20px; background: var(--primary); color: #fff;
+      padding: 13px 18px; border-radius: 9px; box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      border-right: 4px solid #fbbf24; font-weight: 700; display: none; z-index: 999;
+    }
   </style>
 </head>
 <body>
 
-<!-- 1. شاشة تسجيل الدخول الآمن -->
+<div id="toast" class="toast"></div>
+
+<!-- 1. شاشة تسجيل الدخول -->
 <div id="loginView" class="login-wrapper">
   <div class="login-card">
-    <span class="brand-badge">بخارى • أوزبكستان | UZS + 4%</span>
+    <span class="brand-badge">فرع بخارى • أوزبكستان | UZS + 4%</span>
     <h1>نظام إدارة المطعم المتكامل</h1>
     <p>أدخل رمز الدخول السريع (PIN) للوصول حسب صلاحياتك</p>
 
-    <div class="input-group">
+    <div class="form-group">
       <label>رمز الدخول (PIN Code)</label>
-      <input type="password" id="pinInput" placeholder="••••" maxlength="6" />
+      <input type="password" id="pinInput" placeholder="••••" maxlength="6" style="text-align:center; letter-spacing:4px; font-size:1.15rem;" />
     </div>
 
-    <div class="input-group">
+    <div class="form-group" id="apiUrlGroup">
       <label>رابط Google Apps Script Web App</label>
-      <input type="url" id="apiUrlInput" placeholder="https://script.google.com/macros/s/AKfycbx2coIYwIdLPmSFH0VEYzzbUX9kiYfQYk7wTnRNSymGr6qsMvOOS0Nuu5br7Zlr0cTygg/exec" />
+      <input type="url" id="apiUrlInput" placeholder="https://script.google.com/macros/s/AKfycbwQZ_yVYINAu6L9On_ZWwe0gC0grMPqQiCuADeLLkKQNN2T85Wg337X-5BJXGAIy_-F/exec" dir="ltr" />
     </div>
 
-    <button class="btn btn-gold" onclick="loginSystem()">دخول إلى النظام</button>
-    <p id="loginError" style="color: var(--danger); margin-top: 12px; font-weight: 700;"></p>
+    <button class="btn btn-gold" id="loginBtn" onclick="loginSystem()">دخول إلى النظام</button>
+    <p id="loginError" style="color: var(--danger); margin-top: 12px; font-weight: 700; font-size:0.88rem;"></p>
   </div>
 </div>
 
-<!-- 2. واجهة النظام الرئيسية -->
+<!-- 2. واجهة النظام -->
 <div id="appView" class="app-container">
   <header>
     <div class="header-title">
       <span>مطعم بخارى</span>
-      <small style="opacity: 0.8;">| السوم الأوزبكي (UZS) • ضريبة 4%</small>
+      <small style="opacity: 0.85;">| السوم الأوزبكي (UZS) • ضريبة 4%</small>
     </div>
     <div class="user-pill">
-      <span id="activeUserLabel">المستخدم: --</span>
-      <button class="btn" style="padding: 5px 12px; font-size: 0.8rem; width: auto; background: var(--accent);" onclick="refreshData()">تحديث البيانات</button>
-      <button class="logout-btn" onclick="logoutSystem()">خروج</button>
+      <span id="activeUserLabel">--</span>
+      <button class="btn btn-gold btn-sm" onclick="reloadDashboard()">تحديث</button>
+      <button class="btn btn-danger btn-sm" onclick="logoutSystem()">خروج</button>
     </div>
   </header>
 
   <nav>
     <button class="nav-tab active" onclick="switchTab('reportsTab', this)">التقارير والأداء المالي</button>
     <button class="nav-tab" onclick="switchTab('posTab', this)">نقطة البيع (POS)</button>
+    <button class="nav-tab" onclick="switchTab('warehouseTab', this)">المشتريات وصرف المخزن</button>
     <button class="nav-tab" id="tabCostingBtn" onclick="switchTab('costingTab', this)">هندسة التسعير والريسبي</button>
-    <button class="nav-tab" onclick="switchTab('inventoryTab', this)">مراقبة المخزون (رئيسي / مطبخ)</button>
+    <button class="nav-tab" onclick="switchTab('financeOpsTab', this)">المصروفات والجرد والورديات</button>
   </nav>
 
   <main>
-    <!-- شاشة 1: التقارير والأداء المالي -->
+    <!-- التبويب 1: التقارير والأداء المالي -->
     <section id="reportsTab" class="section active">
       <div class="kpi-grid">
         <div class="kpi-card">
@@ -230,73 +229,79 @@
           <div class="kpi-sub" id="kpiFoodCostPct">نسبة التكلفة: 0%</div>
         </div>
         <div class="kpi-card green" id="cardNetProfit">
-          <div class="kpi-label">صافي الربح التشغيلي (للمالك فقط)</div>
+          <div class="kpi-label">صافي الربح النهائي (للمالك فقط)</div>
           <div class="kpi-value" id="kpiNetProfit">0 UZS</div>
-          <div class="kpi-sub" id="kpiExpSub">المصروفات التشغيلية والثابتة: 0 UZS</div>
+          <div class="kpi-sub" id="kpiExpSub">إجمالي المصروفات والرواتب: 0 UZS</div>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="panel">
-          <div class="panel-header">
-            <h3>توزيع المبيعات حسب وسائل الدفع في بخارى</h3>
-          </div>
+          <div class="panel-header"><h3>توزيع المبيعات حسب وسائل الدفع</h3></div>
           <div id="paymentBarsContainer"></div>
         </div>
 
-        <div class="panel" id="expensesSummaryPanel">
-          <div class="panel-header">
-            <h3>هيكل التكاليف والمصروفات</h3>
-          </div>
+        <div class="panel" id="pnlPanel">
+          <div class="panel-header"><h3>قائمة الدخل الفورية (P&L)</h3></div>
+          <table>
+            <thead><tr><th>البند المحاسبي</th><th>القيمة (UZS)</th></tr></thead>
+            <tbody id="pnlTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h3>أرصدة المخزن الرئيسي والمطبخ/البار وتنبيهات النواقص</h3></div>
+        <div style="overflow-x:auto;">
           <table>
             <thead>
-              <tr><th>البند المحاسبي</th><th>القيمة (UZS)</th></tr>
+              <tr>
+                <th>الكود</th><th>المادة الخام</th><th>القسم</th><th>المخزن الرئيسي</th>
+                <th>المطبخ / البار</th><th>الإجمالي</th><th>حد الطلب</th><th>الحالة</th>
+              </tr>
             </thead>
-            <tbody id="financialSummaryTable"></tbody>
+            <tbody id="inventoryTableBody"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- شاشة 2: نقطة البيع السريعة POS -->
+    <!-- التبويب 2: نقطة البيع POS -->
     <section id="posTab" class="section">
       <div class="grid-2">
         <div class="panel">
-          <div class="panel-header">
-            <h3>قائمة الوجبات والمشروبات</h3>
-          </div>
+          <div class="panel-header"><h3>قائمة الوجبات والمشروبات</h3></div>
           <div class="pos-menu-grid" id="posMenuGrid"></div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">
-            <h3>الفاتورة الحالية (تخصم المخزون آلياً)</h3>
-          </div>
-          <div id="posCartList" style="min-height: 180px;"></div>
+          <div class="panel-header"><h3>الفاتورة الحالية (تخصم رصيد المطبخ/البار آلياً)</h3></div>
+          <div id="posCartList" style="min-height:170px;"></div>
 
-          <div style="margin-top: 16px; padding-top: 12px; border-top: 2px solid var(--border);">
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-              <span>المجموع قبل الضريبة:</span>
-              <strong id="cartSubtotal">0 UZS</strong>
+          <div style="margin-top:14px; padding-top:12px; border-top:2px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+              <span>المجموع قبل الضريبة:</span><strong id="cartSubtotal">0 UZS</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; color: var(--muted);">
-              <span>ضريبة القيمة المضافة (4%):</span>
-              <strong id="cartTax">0 UZS</strong>
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:var(--muted);">
+              <span>ضريبة القيمة المضافة (4%):</span><strong id="cartTax">0 UZS</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:1.2rem; color: var(--primary); margin-bottom:14px;">
-              <span>الإجمالي النهائي:</span>
-              <strong id="cartTotal">0 UZS</strong>
+            <div style="display:flex; justify-content:space-between; font-size:1.15rem; color:var(--primary); margin-bottom:12px;">
+              <span>الإجمالي النهائي:</span><strong id="cartTotal">0 UZS</strong>
             </div>
 
-            <div class="input-group">
+            <div class="form-group">
               <label>وسيلة الدفع</label>
-              <select id="posPaymentMethod" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border);">
+              <select id="posPaymentMethod">
                 <option value="Uzcard">Uzcard</option>
                 <option value="Humo">Humo</option>
                 <option value="Payme">Payme</option>
                 <option value="Click">Click</option>
                 <option value="Cash">نقدي (Cash - UZS)</option>
               </select>
+            </div>
+            <div class="form-group">
+              <label>ملاحظات / رقم الطاولة</label>
+              <input type="text" id="posNotes" placeholder="صالة - طاولة 1" />
             </div>
 
             <button class="btn btn-gold" id="submitSaleBtn" onclick="submitPosOrder()">اعتماد الفاتورة وخصم المخزون</button>
@@ -305,55 +310,168 @@
       </div>
     </section>
 
-    <!-- شاشة 3: هندسة التسعير والريسبي -->
+    <!-- التبويب 3: المشتريات وصرف المخزن -->
+    <section id="warehouseTab" class="section">
+      <div class="grid-2">
+        <!-- تسجيل فاتورة مشتريات -->
+        <div class="panel">
+          <div class="panel-header"><h3>تسجيل فاتورة مشتريات (تغذي المخزن الرئيسي)</h3></div>
+          <div class="form-group">
+            <label>المادة الخام</label>
+            <select id="purItemId"></select>
+          </div>
+          <div class="form-group">
+            <label>القسم</label>
+            <select id="purDept"><option value="مطبخ">مطبخ</option><option value="بار">بار</option></select>
+          </div>
+          <div class="form-group">
+            <label>المورد</label>
+            <input type="text" id="purSupplier" placeholder="سوق بخارى المركزي" />
+          </div>
+          <div class="form-group">
+            <label>الكمية المشتراة (بوحدة الشراء: كجم / لتر / علبة)</label>
+            <input type="number" step="0.01" id="purQty" placeholder="10" />
+          </div>
+          <div class="form-group">
+            <label>سعر الوحدة (UZS)</label>
+            <input type="number" id="purPrice" placeholder="95000" />
+          </div>
+          <div class="form-group">
+            <label>مصدر السداد</label>
+            <select id="purPaySource"><option value="Cash">صندوق النقدية (Cash)</option><option value="Bank">تحويل بنكي / بطاقة</option></select>
+          </div>
+          <button class="btn" onclick="submitPurchase(this)">ترحيل المشتريات وتحديث متوسط التكلفة</button>
+        </div>
+
+        <!-- إذن إخراج للمطبخ والبار -->
+        <div class="panel">
+          <div class="panel-header"><h3>إذن إخراج خامات (من المخزن الرئيسي إلى المطبخ/البار)</h3></div>
+          <div class="form-group">
+            <label>المادة الخام</label>
+            <select id="issItemId"></select>
+          </div>
+          <div class="form-group">
+            <label>القسم المستلم</label>
+            <select id="issDept"><option value="مطبخ التحضير">مطبخ التحضير</option><option value="البار">البار</option></select>
+          </div>
+          <div class="form-group">
+            <label>الكمية المنصرفة (بوحدة الشراء)</label>
+            <input type="number" step="0.01" id="issQty" placeholder="5" />
+          </div>
+          <button class="btn btn-gold" onclick="submitIssue(this)">اعتماد إذن الصرف ونقل الرصيد</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- التبويب 4: هندسة التسعير والريسبي -->
     <section id="costingTab" class="section">
       <div class="panel">
-        <div class="panel-header">
-          <h3>تحليل ربحية القائمة وهندسة التسعير (Recipe Costing & Margin)</h3>
-        </div>
-        <div style="overflow-x: auto;">
+        <div class="panel-header"><h3>جدول هندسة التسعير والريسبي وهامش الربح</h3></div>
+        <div style="overflow-x:auto;">
           <table>
             <thead>
               <tr>
-                <th>الكود</th>
-                <th>الوجبة / المشروب</th>
-                <th>التصنيف</th>
-                <th>سعر البيع (صافي)</th>
-                <th>ضريبة 4%</th>
-                <th>السعر للزبون</th>
-                <th>تكلفة الريسبي</th>
-                <th>Food Cost %</th>
-                <th>هامش الربح</th>
+                <th>الكود</th><th>الوجبة</th><th>التصنيف</th><th>سعر البيع (صافي)</th>
+                <th>تكلفة الريسبي</th><th>Food Cost %</th><th>صافي الهامش</th><th>ضريبة 4%</th><th>السعر للزبون</th>
               </tr>
             </thead>
             <tbody id="costingTableBody"></tbody>
           </table>
         </div>
       </div>
+
+      <div class="grid-3">
+        <!-- إضافة وجبة جديدة -->
+        <div class="panel">
+          <div class="panel-header"><h3>إضافة وجبة جديدة للقائمة</h3></div>
+          <div class="form-group"><label>اسم الوجبة</label><input type="text" id="newMealName" placeholder="مانتي بخاري" /></div>
+          <div class="form-group"><label>التصنيف</label><input type="text" id="newMealCat" placeholder="أطباق رئيسية" /></div>
+          <div class="form-group"><label>سعر البيع الصافي قبل الضريبة (UZS)</label><input type="number" id="newMealPrice" placeholder="32000" /></div>
+          <button class="btn" onclick="submitNewMeal(this)">إضافة الوجبة</button>
+        </div>
+
+        <!-- إضافة مكون لوصفة -->
+        <div class="panel">
+          <div class="panel-header"><h3>ربط مكون بوجبة (Recipe)</h3></div>
+          <div class="form-group"><label>اختر الوجبة</label><select id="recMealId"></select></div>
+          <div class="form-group"><label>اختر المادة الخام</label><select id="recItemId"></select></div>
+          <div class="form-group"><label>الكمية الصافية (جرام / مل / حبة)</label><input type="number" step="0.1" id="recNetQty" placeholder="150" /></div>
+          <div class="form-group"><label>نسبة الهالك (%)</label><input type="number" step="0.5" id="recWaste" value="10" /></div>
+          <button class="btn btn-gold" onclick="submitRecipeItem(this)">حفظ المكون وإعادة التسعير</button>
+        </div>
+
+        <!-- إضافة مادة خام جديدة -->
+        <div class="panel">
+          <div class="panel-header"><h3>تعريف مادة خام جديدة في الدليل</h3></div>
+          <div class="form-group"><label>اسم المادة الخام</label><input type="text" id="matName" placeholder="طماطم طازجة" /></div>
+          <div class="form-group"><label>القسم</label><select id="matDept"><option value="مطبخ">مطبخ</option><option value="بار">بار</option></select></div>
+          <div class="form-group"><label>وحدة الشراء / وحدة الوصفة / معامل التحويل</label>
+            <div style="display:flex; gap:6px;">
+              <input type="text" id="matPurUnit" value="كجم" />
+              <input type="text" id="matRecUnit" value="جرام" />
+              <input type="number" id="matFactor" value="1000" />
+            </div>
+          </div>
+          <div class="form-group"><label>سعر الشراء الابتدائي (UZS) / حد الطلب</label>
+            <div style="display:flex; gap:6px;">
+              <input type="number" id="matCost" placeholder="12000" />
+              <input type="number" id="matReorder" value="5" />
+            </div>
+          </div>
+          <button class="btn" onclick="submitNewMasterItem(this)">إضافة للدليل</button>
+        </div>
+      </div>
     </section>
 
-    <!-- شاشة 4: مراقبة المخزون -->
-    <section id="inventoryTab" class="section">
-      <div class="panel">
-        <div class="panel-header">
-          <h3>أرصدة المخزن الرئيسي والمطبخ/البار وتنبيهات النواقص</h3>
+    <!-- التبويب 5: المصروفات والجرد والورديات -->
+    <section id="financeOpsTab" class="section">
+      <div class="grid-3">
+        <!-- تسجيل مصروف -->
+        <div class="panel">
+          <div class="panel-header"><h3>تسجيل مصروف تشغيلي أو ثابت</h3></div>
+          <div class="form-group">
+            <label>نوع المصروف</label>
+            <select id="expType">
+              <option value="Operating">تشغيلي (غاز، كهرباء، صيانة، نظافة)</option>
+              <option value="Fixed">ثابت (إيجار، تراخيص، اشتراكات)</option>
+            </select>
+          </div>
+          <div class="form-group"><label>البيان</label><input type="text" id="expDesc" placeholder="فاتورة كهرباء الشهر" /></div>
+          <div class="form-group"><label>المبلغ (UZS)</label><input type="number" id="expAmount" placeholder="850000" /></div>
+          <div class="form-group">
+            <label>طريقة الدفع</label>
+            <select id="expPaySource"><option value="Cash">نقدي (Cash)</option><option value="Bank">تحويل بنكي</option></select>
+          </div>
+          <button class="btn" onclick="submitExpense(this)">حفظ المصروف</button>
         </div>
-        <div style="overflow-x: auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>الكود</th>
-                <th>المادة الخام</th>
-                <th>القسم</th>
-                <th>المخزن الرئيسي</th>
-                <th>المطبخ / البار</th>
-                <th>الإجمالي</th>
-                <th>حد الطلب</th>
-                <th>الحالة</th>
-              </tr>
-            </thead>
-            <tbody id="inventoryTableBody"></tbody>
-          </table>
+
+        <!-- تسجيل محضر جرد -->
+        <div class="panel">
+          <div class="panel-header"><h3>جرد الصندوق، ثلاجات البار، أو المخزن</h3></div>
+          <div class="form-group">
+            <label>نطاق الجرد</label>
+            <select id="audScope">
+              <option value="جرد صندوق النقدية">جرد صندوق النقدية (Cash)</option>
+              <option value="جرد ثلاجات البار">جرد ثلاجات البار</option>
+              <option value="جرد المخزن الرئيسي">جرد المخزن الرئيسي</option>
+            </select>
+          </div>
+          <div class="form-group"><label>المرجع / اسم الصنف</label><input type="text" id="audRef" placeholder="صندوق الكاشير المسائي" /></div>
+          <div class="form-group"><label>الرصيد الدفتري</label><input type="number" step="0.01" id="audBook" placeholder="1500000" /></div>
+          <div class="form-group"><label>العد الفعلي</label><input type="number" step="0.01" id="audActual" placeholder="1495000" /></div>
+          <div class="form-group"><label>قيمة الوحدة (1 للنقدية أو سعر الوحدة للمخزون)</label><input type="number" id="audUnitVal" value="1" /></div>
+          <button class="btn btn-gold" onclick="submitAudit(this)">اعتماد محضر الجرد</button>
+        </div>
+
+        <!-- تسجيل وردية موظف -->
+        <div class="panel">
+          <div class="panel-header"><h3>تسجيل وردية موظف ومستحقاته</h3></div>
+          <div class="form-group"><label>اسم الموظف</label><input type="text" id="shfName" placeholder="رستم كريموف" /></div>
+          <div class="form-group"><label>الوظيفة</label><input type="text" id="shfRole" placeholder="شيف مشويات" /></div>
+          <div class="form-group"><label>ساعات العمل</label><input type="number" id="shfHours" value="10" /></div>
+          <div class="form-group"><label>الأجر اليومي (UZS)</label><input type="number" id="shfWage" placeholder="180000" /></div>
+          <div class="form-group"><label>الخصومات (UZS)</label><input type="number" id="shfDed" value="0" /></div>
+          <button class="btn" onclick="submitShift(this)">ترحيل الوردية للرواتب</button>
         </div>
       </div>
     </section>
@@ -361,79 +479,119 @@
 </div>
 
 <script>
-  // ضع رابط Web App الخاص بك هنا كقيمة افتراضية بعد النشر
-  const DEFAULT_API_URL = localStorage.getItem('https://script.google.com/macros/s/AKfycbx2coIYwIdLPmSFH0VEYzzbUX9kiYfQYk7wTnRNSymGr6qsMvOOS0Nuu5br7Zlr0cTygg/exec') || '';
-  document.getElementById('apiUrlInput').value = DEFAULT_API_URL;
+  // =========================================================================
+  // ضع رابط Google Apps Script Web App الخاص بك هنا (ينتهي بـ /exec)
+  // =========================================================================
+  const DEFAULT_API_URL = 'ضع_رابط_السكربت_هنا';
 
-  let APP_STATE = {
+  let STATE = {
     pin: '',
-    apiUrl: DEFAULT_API_URL,
-    data: null,
+    apiUrl: '',
+    payload: null,
     cart: []
   };
 
-  const fmtUZS = (num) => Number(num || 0).toLocaleString('en-US') + ' UZS';
+  // تهيئة الرابط تلقائياً عند فتح الصفحة
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedUrl = localStorage.getItem('bukhara_script_url');
+    const finalUrl = (DEFAULT_API_URL && DEFAULT_API_URL.startsWith('http')) ? DEFAULT_API_URL : (savedUrl || '');
+    document.getElementById('apiUrlInput').value = finalUrl;
+    if (DEFAULT_API_URL && DEFAULT_API_URL.startsWith('http')) {
+      document.getElementById('apiUrlGroup').style.display = 'none';
+    }
+  });
+
+  const fmtUZS = (n) => Math.round(Number(n || 0)).toLocaleString('en-US') + ' UZS';
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 3500);
+  }
+
+  // دالة الاتصال الموحدة مع Code.gs عبر POST
+  async function apiCall(actionName, extraData = {}) {
+    const res = await fetch(STATE.apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        pin: STATE.pin,
+        action: actionName,
+        ...extraData
+      })
+    });
+    return await res.json();
+  }
 
   async function loginSystem() {
     const pin = document.getElementById('pinInput').value.trim();
     const apiUrl = document.getElementById('apiUrlInput').value.trim();
     const errEl = document.getElementById('loginError');
+    const btn = document.getElementById('loginBtn');
 
-    if (!pin || !apiUrl) {
-      errEl.textContent = 'يرجى إدخال رمز PIN ورابط Google Apps Script.';
+    if (!pin || !apiUrl || !apiUrl.startsWith('http')) {
+      errEl.textContent = 'يرجى إدخال رمز PIN ورابط Google Apps Script الصحيح.';
       return;
     }
 
-    errEl.textContent = 'جاري التحقق وجلب البيانات...';
-    localStorage.setItem('bukhara_api_url', apiUrl);
-    APP_STATE.pin = pin;
-    APP_STATE.apiUrl = apiUrl;
+    btn.disabled = true;
+    btn.textContent = 'جاري التحقق وجلب البيانات...';
+    errEl.textContent = '';
 
-    const ok = await refreshData();
-    if (ok) {
-      errEl.textContent = '';
-      document.getElementById('loginView').style.display = 'none';
-      document.getElementById('appView').style.display = 'block';
-    } else {
-      errEl.textContent = 'فشل الدخول: تأكد من رمز PIN أو إعدادات نشر Web App.';
+    STATE.pin = pin;
+    STATE.apiUrl = apiUrl;
+    localStorage.setItem('bukhara_script_url', apiUrl);
+
+    try {
+      const data = await apiCall('loginAndLoad');
+      if (data.status !== 'ok') {
+        errEl.textContent = data.message || 'فشل الدخول، تأكد من رمز PIN.';
+      } else {
+        STATE.payload = data;
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('appView').style.display = 'block';
+        renderUI();
+        showToast(`أهلاً بك ${data.user.name}`);
+      }
+    } catch (e) {
+      errEl.textContent = 'تعذر الاتصال بالخادم. تأكد من نشر Web App بصلاحية Anyone.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'دخول إلى النظام';
+    }
+  }
+
+  async function reloadDashboard() {
+    showToast('جاري تحديث البيانات...');
+    const data = await apiCall('loginAndLoad');
+    if (data.status === 'ok') {
+      STATE.payload = data;
+      renderUI();
+      showToast('تم التحديث بنجاح');
     }
   }
 
   function logoutSystem() {
-    APP_STATE.pin = '';
-    APP_STATE.data = null;
-    APP_STATE.cart = [];
+    STATE.pin = '';
+    STATE.payload = null;
+    STATE.cart = [];
     document.getElementById('pinInput').value = '';
     document.getElementById('appView').style.display = 'none';
     document.getElementById('loginView').style.display = 'flex';
   }
 
-  async function refreshData() {
-    try {
-      const res = await fetch(`${APP_STATE.apiUrl}?pin=${encodeURIComponent(APP_STATE.pin)}`);
-      const json = await res.json();
-      if (json.status !== 'ok') return false;
-
-      APP_STATE.data = json;
-      renderAll();
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
-  }
-
-  function renderAll() {
-    const { user, kpis, menu, inventory } = APP_STATE.data;
+  function renderUI() {
+    const { user, kpis, menu, inventory } = STATE.payload;
     document.getElementById('activeUserLabel').textContent = `${user.name} (${user.role})`;
 
-    // إظهار/إخفاء الشاشات والبطاقات حسب صلاحيات Users
+    // تطبيق الصلاحيات
     document.getElementById('tabCostingBtn').style.display = user.canViewCosts ? 'inline-block' : 'none';
     document.getElementById('cardCogs').style.display = user.canViewCosts ? 'block' : 'none';
     document.getElementById('cardNetProfit').style.display = user.canViewProfit ? 'block' : 'none';
-    document.getElementById('expensesSummaryPanel').style.display = user.canViewProfit ? 'block' : 'none';
+    document.getElementById('pnlPanel').style.display = user.canViewProfit ? 'block' : 'none';
 
-    // تعبئة المؤشرات المالية
+    // المؤشرات
     document.getElementById('kpiGross').textContent = fmtUZS(kpis.totalGross);
     document.getElementById('kpiNetSub').textContent = `الصافي قبل الضريبة: ${fmtUZS(kpis.totalSalesNet)}`;
     document.getElementById('kpiTax4').textContent = fmtUZS(kpis.totalTax4);
@@ -446,35 +604,56 @@
 
     if (user.canViewProfit) {
       document.getElementById('kpiNetProfit').textContent = fmtUZS(kpis.netProfit);
-      const totalExp = (kpis.operatingExp || 0) + (kpis.fixedExp || 0);
-      document.getElementById('kpiExpSub').textContent = `المصروفات التشغيلية والثابتة: ${fmtUZS(totalExp)}`;
+      const totalOut = (kpis.operatingExp || 0) + (kpis.fixedExp || 0) + (kpis.totalSalaries || 0);
+      document.getElementById('kpiExpSub').textContent = `المصروفات والرواتب: ${fmtUZS(totalOut)}`;
 
-      document.getElementById('financialSummaryTable').innerHTML = `
-        <tr><td>صافي المبيعات (بدون ضريبة)</td><td><strong>${fmtUZS(kpis.totalSalesNet)}</strong></td></tr>
-        <tr><td>تكلفة الخامات المباعة (COGS)</td><td style="color:var(--danger)">- ${fmtUZS(kpis.totalCOGS)}</td></tr>
+      document.getElementById('pnlTableBody').innerHTML = `
+        <tr><td>صافي المبيعات (بدون ضريبة 4%)</td><td><strong>${fmtUZS(kpis.totalSalesNet)}</strong></td></tr>
+        <tr><td>تكلفة البضاعة المباعة (COGS)</td><td style="color:var(--danger)">- ${fmtUZS(kpis.totalCOGS)}</td></tr>
         <tr><td>المصروفات التشغيلية (Operating)</td><td style="color:var(--danger)">- ${fmtUZS(kpis.operatingExp)}</td></tr>
         <tr><td>المصروفات الثابتة (Fixed)</td><td style="color:var(--danger)">- ${fmtUZS(kpis.fixedExp)}</td></tr>
-        <tr style="background:#f0fdf4"><td><strong>صافي الربح النهائي</strong></td><td><strong style="color:var(--success)">${fmtUZS(kpis.netProfit)}</strong></td></tr>
+        <tr><td>الرواتب والورديات</td><td style="color:var(--danger)">- ${fmtUZS(kpis.totalSalaries)}</td></tr>
+        <tr><td>تسويات الجرد المعتمدة</td><td>${fmtUZS(kpis.totalAuditVariance)}</td></tr>
+        <tr style="background:#ecfdf5"><td><strong>صافي الربح النهائي</strong></td><td><strong style="color:var(--success)">${fmtUZS(kpis.netProfit)}</strong></td></tr>
       `;
     }
 
-    // أشرطة وسائل الدفع
-    const pmContainer = document.getElementById('paymentBarsContainer');
-    pmContainer.innerHTML = '';
-    const pmTotal = kpis.totalGross || 1;
-    Object.entries(kpis.paymentBreakdown).forEach(([method, val]) => {
-      const pct = Math.round((val / pmTotal) * 100);
-      pmContainer.innerHTML += `
+    // وسائل الدفع
+    const pmDiv = document.getElementById('paymentBarsContainer');
+    pmDiv.innerHTML = '';
+    const pmTot = kpis.totalGross || 1;
+    Object.entries(kpis.paymentBreakdown).forEach(([k, v]) => {
+      const pct = Math.round((v / pmTot) * 100);
+      pmDiv.innerHTML += `
         <div class="bar-row">
-          <div class="bar-info"><span>${method}</span><span>${fmtUZS(val)} (${pct}%)</span></div>
+          <div class="bar-info"><span>${k}</span><span>${fmtUZS(v)} (${pct}%)</span></div>
           <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
         </div>
       `;
     });
 
-    // تعبئة شاشة نقطة البيع POS
-    const posGrid = document.getElementById('posMenuGrid');
-    posGrid.innerHTML = menu.map(m => `
+    // جدول المخزون والقوائم المنسدلة للمواد الخام
+    const invHtml = inventory.map(it => `
+      <tr>
+        <td>${it.id}</td>
+        <td><strong>${it.name}</strong></td>
+        <td><span class="badge badge-gold">${it.dept}</span></td>
+        <td>${it.mainQty} ${it.purUnit}</td>
+        <td>${it.opQty} ${it.purUnit}</td>
+        <td><strong>${it.totalQty} ${it.purUnit}</strong></td>
+        <td>${it.reorderLevel} ${it.purUnit}</td>
+        <td><span class="badge ${it.isLow ? 'badge-low' : 'badge-ok'}">${it.isLow ? 'اطلب الآن' : 'متوفر'}</span></td>
+      </tr>
+    `).join('');
+    document.getElementById('inventoryTableBody').innerHTML = invHtml;
+
+    const itemOptions = inventory.map(it => `<option value="${it.id}">${it.id} - ${it.name} (${it.purUnit})</option>`).join('');
+    document.getElementById('purItemId').innerHTML = itemOptions;
+    document.getElementById('issItemId').innerHTML = itemOptions;
+    document.getElementById('recItemId').innerHTML = inventory.map(it => `<option value="${it.id}">${it.name} (${it.recUnit})</option>`).join('');
+
+    // قائمة الطعام POS وهندسة التسعير
+    document.getElementById('posMenuGrid').innerHTML = menu.map(m => `
       <div class="menu-tile" onclick="addToCart('${m.id}')">
         <h4>${m.name}</h4>
         <div class="price">${fmtUZS(m.priceNet)}</div>
@@ -482,117 +661,181 @@
       </div>
     `).join('');
 
-    // تعبئة جدول هندسة التسعير
+    document.getElementById('recMealId').innerHTML = menu.map(m => `<option value="${m.id}">${m.id} - ${m.name}</option>`).join('');
+
     if (user.canViewCosts) {
-      document.getElementById('costingTableBody').innerHTML = menu.map(m => {
-        const fc = ((m.foodCostPct || 0) * 100).toFixed(1);
-        const badgeClass = fc > 35 ? 'badge-low' : 'badge-ok';
-        return `
-          <tr>
-            <td>${m.id}</td>
-            <td><strong>${m.name}</strong></td>
-            <td>${m.category}</td>
-            <td>${fmtUZS(m.priceNet)}</td>
-            <td>${fmtUZS(m.tax4)}</td>
-            <td><strong>${fmtUZS(m.priceFinal)}</strong></td>
-            <td>${fmtUZS(m.cost)}</td>
-            <td><span class="badge ${badgeClass}">${fc}%</span></td>
-            <td style="color:var(--success); font-weight:700;">${fmtUZS(m.margin)}</td>
-          </tr>
-        `;
-      }).join('');
+      document.getElementById('costingTableBody').innerHTML = menu.map(m => `
+        <tr>
+          <td>${m.id}</td>
+          <td><strong>${m.name}</strong></td>
+          <td>${m.category}</td>
+          <td>${fmtUZS(m.priceNet)}</td>
+          <td>${fmtUZS(m.cost)}</td>
+          <td><span class="badge ${m.foodCostPct > 35 ? 'badge-low' : 'badge-ok'}">${m.foodCostPct}%</span></td>
+          <td style="color:var(--success); font-weight:700;">${fmtUZS(m.margin)}</td>
+          <td>${fmtUZS(m.tax4)}</td>
+          <td><strong>${fmtUZS(m.priceFinal)}</strong></td>
+        </tr>
+      `).join('');
     }
-
-    // تعبئة جدول المخزون
-    document.getElementById('inventoryTableBody').innerHTML = inventory.map(it => `
-      <tr>
-        <td>${it.id}</td>
-        <td><strong>${it.name}</strong></td>
-        <td><span class="badge badge-gold">${it.dept}</span></td>
-        <td>${it.mainQty} ${it.unit}</td>
-        <td>${it.opQty} ${it.unit}</td>
-        <td><strong>${it.totalQty} ${it.unit}</strong></td>
-        <td>${it.reorderLevel} ${it.unit}</td>
-        <td><span class="badge ${it.isLow ? 'badge-low' : 'badge-ok'}">${it.isLow ? 'اطلب الآن' : 'متوفر'}</span></td>
-      </tr>
-    `).join('');
-  }
-
-  // وظائف سلة المبيعات POS
-  function addToCart(menuId) {
-    const item = APP_STATE.data.menu.find(m => m.id === menuId);
-    if (!item) return;
-    const existing = APP_STATE.cart.find(c => c.menuId === menuId);
-    if (existing) existing.qty += 1;
-    else APP_STATE.cart.push({ menuId: item.id, name: item.name, priceNet: item.priceNet, qty: 1 });
     renderCart();
   }
 
-  function updateCartQty(menuId, delta) {
-    const idx = APP_STATE.cart.findIndex(c => c.menuId === menuId);
+  // وظائف POS
+  function addToCart(mealId) {
+    const m = STATE.payload.menu.find(x => x.id === mealId);
+    if (!m) return;
+    const ex = STATE.cart.find(c => c.menuId === mealId);
+    if (ex) ex.qty += 1;
+    else STATE.cart.push({ menuId: m.id, name: m.name, priceNet: m.priceNet, qty: 1 });
+    renderCart();
+  }
+
+  function updateQty(mealId, d) {
+    const idx = STATE.cart.findIndex(c => c.menuId === mealId);
     if (idx === -1) return;
-    APP_STATE.cart[idx].qty += delta;
-    if (APP_STATE.cart[idx].qty <= 0) APP_STATE.cart.splice(idx, 1);
+    STATE.cart[idx].qty += d;
+    if (STATE.cart[idx].qty <= 0) STATE.cart.splice(idx, 1);
     renderCart();
   }
 
   function renderCart() {
-    const listEl = document.getElementById('posCartList');
+    const div = document.getElementById('posCartList');
     let sub = 0;
-    listEl.innerHTML = APP_STATE.cart.map(c => {
+    div.innerHTML = STATE.cart.map(c => {
       sub += c.priceNet * c.qty;
       return `
         <div class="cart-item">
-          <div>
-            <strong>${c.name}</strong><br/>
-            <small style="color:var(--muted)">${fmtUZS(c.priceNet)} × ${c.qty}</small>
-          </div>
+          <div><strong>${c.name}</strong><br><small style="color:var(--muted)">${fmtUZS(c.priceNet)} × ${c.qty}</small></div>
           <div class="qty-controls">
-            <button onclick="updateCartQty('${c.menuId}', -1)">-</button>
+            <button onclick="updateQty('${c.menuId}', -1)">-</button>
             <span style="margin:0 8px; font-weight:700;">${c.qty}</span>
-            <button onclick="updateCartQty('${c.menuId}', 1)">+</button>
+            <button onclick="updateQty('${c.menuId}', 1)">+</button>
           </div>
         </div>
       `;
     }).join('');
-
     const tax = Math.round(sub * 0.04);
     document.getElementById('cartSubtotal').textContent = fmtUZS(sub);
     document.getElementById('cartTax').textContent = fmtUZS(tax);
     document.getElementById('cartTotal').textContent = fmtUZS(sub + tax);
   }
 
-  async function submitPosOrder() {
-    if (APP_STATE.cart.length === 0) return alert('السلة فارغة!');
-    const btn = document.getElementById('submitSaleBtn');
+  async function runAction(btn, actionName, payload, successMsg) {
+    const origText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'جاري الترحيل وخصم المخزون...';
-
+    btn.textContent = 'جاري التنفيذ...';
     try {
-      const payload = {
-        action: 'createSale',
-        cashierId: APP_STATE.data.user.id,
-        paymentMethod: document.getElementById('posPaymentMethod').value,
-        items: APP_STATE.cart
-      };
-
-      const res = await fetch(APP_STATE.apiUrl, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-      const json = await res.json();
-      if (json.status === 'ok') {
-        alert(`تم ترحيل الفاتورة (${json.invoiceId}) وخصم المخزون بنجاح!`);
-        APP_STATE.cart = [];
-        renderCart();
-        await refreshData();
+      const res = await apiCall(actionName, payload);
+      if (res.status === 'ok') {
+        if (res.dashboard) {
+          STATE.payload = res.dashboard;
+          renderUI();
+        }
+        showToast(successMsg);
+        return true;
+      } else {
+        alert(res.message || 'حدث خطأ');
+        return false;
       }
     } catch (e) {
-      alert('حدث خطأ أثناء إرسال الفاتورة.');
+      alert('خطأ في الاتصال بالخادم');
+      return false;
     } finally {
       btn.disabled = false;
-      btn.textContent = 'اعتماد الفاتورة وخصم المخزون';
+      btn.textContent = origText;
     }
+  }
+
+  async function submitPosOrder() {
+    if (STATE.cart.length === 0) return alert('الفاتورة فارغة');
+    const btn = document.getElementById('submitSaleBtn');
+    const ok = await runAction(btn, 'createSale', {
+      paymentMethod: document.getElementById('posPaymentMethod').value,
+      notes: document.getElementById('posNotes').value,
+      items: STATE.cart
+    }, 'تم ترحيل الفاتورة وخصم المخزون بنجاح!');
+    if (ok) {
+      STATE.cart = [];
+      renderCart();
+    }
+  }
+
+  function submitPurchase(btn) {
+    runAction(btn, 'addPurchase', {
+      itemId: document.getElementById('purItemId').value,
+      department: document.getElementById('purDept').value,
+      supplier: document.getElementById('purSupplier').value,
+      qty: document.getElementById('purQty').value,
+      unitPrice: document.getElementById('purPrice').value,
+      paymentSource: document.getElementById('purPaySource').value
+    }, 'تم تسجيل المشتريات وتحديث متوسط التكلفة!');
+  }
+
+  function submitIssue(btn) {
+    runAction(btn, 'issueStock', {
+      itemId: document.getElementById('issItemId').value,
+      targetDept: document.getElementById('issDept').value,
+      qty: document.getElementById('issQty').value
+    }, 'تم صرف الخامات من المخزن الرئيسي إلى التشغيل!');
+  }
+
+  function submitNewMeal(btn) {
+    runAction(btn, 'addMenuMeal', {
+      name: document.getElementById('newMealName').value,
+      category: document.getElementById('newMealCat').value,
+      priceNet: document.getElementById('newMealPrice').value
+    }, 'تمت إضافة الوجبة بنجاح!');
+  }
+
+  function submitRecipeItem(btn) {
+    runAction(btn, 'addRecipeItem', {
+      mealId: document.getElementById('recMealId').value,
+      itemId: document.getElementById('recItemId').value,
+      netQty: document.getElementById('recNetQty').value,
+      wastePct: document.getElementById('recWaste').value
+    }, 'تم ربط المكون وإعادة حساب التكلفة والربحية!');
+  }
+
+  function submitNewMasterItem(btn) {
+    runAction(btn, 'addMasterItem', {
+      name: document.getElementById('matName').value,
+      department: document.getElementById('matDept').value,
+      purchaseUnit: document.getElementById('matPurUnit').value,
+      recipeUnit: document.getElementById('matRecUnit').value,
+      factor: document.getElementById('matFactor').value,
+      avgCost: document.getElementById('matCost').value,
+      reorderLevel: document.getElementById('matReorder').value
+    }, 'تمت إضافة المادة الخام للدليل!');
+  }
+
+  function submitExpense(btn) {
+    runAction(btn, 'addExpense', {
+      expenseType: document.getElementById('expType').value,
+      description: document.getElementById('expDesc').value,
+      amount: document.getElementById('expAmount').value,
+      paymentSource: document.getElementById('expPaySource').value
+    }, 'تم تسجيل المصروف!');
+  }
+
+  function submitAudit(btn) {
+    runAction(btn, 'addAudit', {
+      auditScope: document.getElementById('audScope').value,
+      refName: document.getElementById('audRef').value,
+      bookBalance: document.getElementById('audBook').value,
+      actualCount: document.getElementById('audActual').value,
+      unitValue: document.getElementById('audUnitVal').value
+    }, 'تم حفظ محضر الجرد!');
+  }
+
+  function submitShift(btn) {
+    runAction(btn, 'addShift', {
+      staffName: document.getElementById('shfName').value,
+      role: document.getElementById('shfRole').value,
+      hours: document.getElementById('shfHours').value,
+      dailyWage: document.getElementById('shfWage').value,
+      deductions: document.getElementById('shfDed').value
+    }, 'تم ترحيل وردية الموظف!');
   }
 
   function switchTab(tabId, btnEl) {
