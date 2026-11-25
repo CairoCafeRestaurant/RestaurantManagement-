@@ -1,683 +1,2658 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Restoran Tannarx va Narxlash Tizimi (UZS)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظام إدارة المطعم والرقابة المالية والمخزون والموارد البشرية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    #chefPrintCard { display: none; }
-    @media print {
-      body { background: #ffffff !important; padding: 0 !important; margin: 0 !important; }
-      #loginScreen, #mainAppContainer, #priceModal { display: none !important; }
-      #chefPrintCard { display: block !important; width: 100%; padding: 20px; }
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #115e59;       /* أخضر زمردي مريح ومهني */
+      --primary-hover: #0f766e;
+      --primary-soft: #ccfbf1;
+      --secondary: #1e3a8a;     /* أزرق داكن متناسق */
+      --purchase: #d97706;
+      --purchase-bg: #fef3c7;
+      --expense: #4f46e5;
+      --expense-bg: #e0e7ff;
+      --stock: #0284c7;
+      --stock-bg: #e0f2fe;
+      --hr: #0d9488;
+      --hr-bg: #ccfbf1;
+      --total-out: #be123c;
+      --total-out-bg: #ffe4e6;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --warn: #b45309;
+      --warn-bg: #fef3c7;
+      --danger: #dc2626;
+      --danger-bg: #fee2e2;
+      --radius: 14px;
+      --shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
     }
+
+    * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Login Screen (بدون إظهار رابط الخادم) */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #0f172a 0%, #115e59 100%);
+    }
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--surface);
+      padding: 34px 30px;
+      border-radius: 20px;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .login-logo {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 12px;
+      border-radius: 16px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+    .login-card h1 {
+      margin: 0 0 6px;
+      font-size: 21px;
+      color: var(--text);
+      text-align: center;
+      font-weight: 800;
+    }
+    .login-card p {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    /* Top Header & Nav */
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #115e59 100%);
+      color: #fff;
+      padding: 13px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 2px 14px rgba(15, 23, 42, 0.14);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 17px;
+    }
+    .badge-role {
+      background: rgba(255, 255, 255, 0.16);
+      padding: 3px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .today-chip {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .nav-tabs {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 20px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      padding: 9px 15px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { background: var(--surface-2); color: var(--text); }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(17, 94, 89, 0.25);
+    }
+
+    .container {
+      max-width: 1320px;
+      margin: 22px auto;
+      padding: 0 18px 44px;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.22s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Cards & Grid */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      margin: 0;
+      font-size: 16.5px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .card-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 17px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 5px;
+      background: var(--primary);
+    }
+    .kpi.purchase::before { background: var(--purchase); }
+    .kpi.expense::before { background: var(--expense); }
+    .kpi.stock::before { background: var(--stock); }
+    .kpi.hr::before { background: var(--hr); }
+    .kpi.total-out {
+      background: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%);
+      border-color: #fecdd3;
+    }
+    .kpi.total-out::before { background: var(--total-out); }
+    .kpi.profit::before { background: var(--success); }
+
+    .kpi-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .kpi-value {
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .kpi.total-out .kpi-value { color: var(--total-out); }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* Interactive Report Bar & Chart */
+    .split-bar-wrap {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .split-bar {
+      height: 15px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      margin: 10px 0;
+    }
+    .bar-purchases { background: var(--purchase); transition: width 0.35s; }
+    .bar-expenses { background: var(--expense); transition: width 0.35s; }
+    .split-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-left: 6px;
+    }
+
+    .chart-box {
+      width: 100%;
+      min-height: 230px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      position: relative;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .chip-btn.active, .chip-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 13px; font-weight: 700; color: var(--text); }
+    .hint { font-size: 11.5px; color: var(--muted); }
+    input, select, textarea {
+      width: 100%;
+      padding: 9.5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 13.5px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(17, 94, 89, 0.1);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--purchase);
+      padding-top: 8px;
+    }
+    .checkbox-row input { width: auto; }
+
+    .info-banner {
+      background: #f0fdfa;
+      border: 1px solid #99f6e4;
+      color: #115e59;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 9.5px 17px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: var(--secondary); color: #fff; }
+    .btn-secondary:hover { opacity: 0.92; }
+    .btn-purchase { background: var(--purchase); color: #fff; }
+    .btn-purchase:hover { background: #b45309; }
+    .btn-expense { background: var(--expense); color: #fff; }
+    .btn-expense:hover { background: #4338ca; }
+    .btn-stock { background: var(--stock); color: #fff; }
+    .btn-stock:hover { background: #0369a1; }
+    .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface-2); }
+    .btn-sm { padding: 6px 11px; font-size: 12px; }
+    .btn-danger { background: var(--danger-bg); color: var(--danger); padding: 6px 10px; font-size: 12px; }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    th {
+      background: var(--surface-2);
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+    }
+    tr:hover td { background: #f8fafc; }
+
+    .pill {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: inline-block;
+    }
+    .pill-purchase { background: var(--purchase-bg); color: #92400e; }
+    .pill-expense { background: var(--expense-bg); color: #3730a3; }
+    .pill-stock { background: var(--stock-bg); color: #075985; }
+    .pill-ok { background: var(--success-bg); color: var(--success); }
+    .pill-warn { background: var(--warn-bg); color: var(--warn); }
+    .pill-bad { background: var(--danger-bg); color: var(--danger); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .sub-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22);
+      z-index: 999;
+      display: none;
+    }
+    #toast.error { background: var(--danger); }
+    #toast.success { background: var(--primary); }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans p-4 md:p-8 min-h-screen flex items-center justify-center">
+<body>
 
-  <!-- 1. شاشة تسجيل الدخول -->
-  <div id="loginScreen" class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
-    <div class="flex justify-center mb-4">
-      <div class="inline-flex rounded-lg border border-slate-300 bg-slate-50 p-1">
-        <button type="button" onclick="setLanguage('ar')" class="lang-btn-login px-3 py-1 text-xs font-bold rounded-md bg-emerald-600 text-white">العربية</button>
-        <button type="button" onclick="setLanguage('uz')" class="lang-btn-login px-3 py-1 text-xs font-bold rounded-md text-slate-700">O'zbekcha</button>
-        <button type="button" onclick="setLanguage('ru')" class="lang-btn-login px-3 py-1 text-xs font-bold rounded-md text-slate-700">Русский</button>
-      </div>
+<!-- شاشة تسجيل الدخول (بدون رابط الخادم) -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">🍽️</div>
+    <h1>نظام إدارة المطعم والرقابة</h1>
+    <p>متابعة المبيعات، المخزون والجرد، الموارد البشرية والأداء المالي</p>
+    <div class="field" style="margin-bottom: 14px;">
+      <label>اسم الدخول</label>
+      <input type="text" id="loginUser" placeholder="أدخل اسم المستخدم" autocomplete="username" />
     </div>
-
-    <div class="text-center mb-6">
-      <h2 class="text-2xl font-extrabold text-emerald-700" data-i18n="loginTitle">تسجيل الدخول للنظام</h2>
-      <p class="text-xs text-slate-500 mt-1" data-i18n="loginSubtitle">إدارة تكاليف الوجبات والتسعير — أوزبكستان</p>
+    <div class="field" style="margin-bottom: 20px;">
+      <label>كلمة المرور</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" />
     </div>
-
-    <form onsubmit="handleLogin(event)" class="space-y-4">
-      <div>
-        <label class="block text-sm font-semibold mb-1" data-i18n="usernameLabel">اسم المستخدم</label>
-        <input type="text" id="loginUsername" required placeholder="admin / chef" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500">
-      </div>
-      <div>
-        <label class="block text-sm font-semibold mb-1" data-i18n="passwordLabel">كلمة المرور</label>
-        <input type="password" id="loginPassword" required placeholder="••••••" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500">
-      </div>
-      <div id="loginError" class="hidden text-red-600 text-xs font-bold text-center bg-red-50 p-2 rounded"></div>
-      <button type="submit" id="loginSubmitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow transition" data-i18n="loginBtn">
-        دخول
-      </button>
-    </form>
+    <button class="btn btn-primary" style="width: 100%; padding: 11px;" onclick="doLogin()">تسجيل الدخول</button>
   </div>
+</div>
 
-  <!-- 2. واجهة التطبيق الرئيسية (تظهر بعد تسجيل الدخول) -->
-  <div id="mainAppContainer" class="hidden max-w-5xl w-full mx-auto bg-white rounded-2xl shadow-lg p-6">
-    <!-- الشريط العلوي -->
-    <div class="flex flex-col md:flex-row justify-between items-center border-b pb-4 mb-6 gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-emerald-700" data-i18n="appTitle">حاسبة تكاليف وتسعير المطعم (UZS)</h1>
-        <p class="text-xs text-slate-500 mt-1">
-          <span id="loggedUserDisplay" class="font-bold text-slate-700"></span> | 
-          <span data-i18n="appSubtitle">مرتبطة مباشرة بـ Google Sheets</span>
-        </p>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- أزرار تبديل اللغة -->
-        <div class="inline-flex rounded-lg border border-slate-300 bg-slate-50 p-1">
-          <button type="button" onclick="setLanguage('ar')" id="btn-ar" class="lang-btn px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-600 text-white">العربية</button>
-          <button type="button" onclick="setLanguage('uz')" id="btn-uz" class="lang-btn px-2.5 py-1 text-xs font-bold rounded-md text-slate-700">O'zbekcha</button>
-          <button type="button" onclick="setLanguage('ru')" id="btn-ru" class="lang-btn px-2.5 py-1 text-xs font-bold rounded-md text-slate-700">Русский</button>
-        </div>
-
-        <button type="button" onclick="printChefRecipeCard()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-semibold shadow" data-i18n="printChefBtn">
-          🖨️ بطاقة الشيف (PDF)
-        </button>
-
-        <button type="button" onclick="openPriceModal()" class="admin-only bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-xs font-semibold shadow" data-i18n="updatePricesBtn">
-          ⚡ تحديث الأسعار المتغيرة
-        </button>
-
-        <button type="button" onclick="logout()" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-lg text-xs font-bold" data-i18n="logoutBtn">
-          خروج
-        </button>
-      </div>
+<!-- التطبيق الرئيسي -->
+<div id="appScreen" style="display: none;">
+  <header>
+    <div class="brand">
+      <span>🍽️ نظام إدارة المطعم</span>
+      <span id="userBadge" class="badge-role"></span>
+      <span id="todayBadge" class="today-chip"></span>
     </div>
-
-    <!-- بيانات الوجبة -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border">
-      <div>
-        <label class="block text-sm font-semibold mb-1" data-i18n="mealNameLabel">اسم الوجبة</label>
-        <input type="text" id="mealName" data-i18n-placeholder="mealNamePlaceholder" placeholder="مثال: بلوف طشقندي (Toshkent oshi)" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-emerald-500">
-      </div>
-      <div class="admin-only">
-        <label class="block text-sm font-semibold mb-1" data-i18n="targetFcLabel">نسبة تكلفة الطعام المستهدفة (%)</label>
-        <input type="number" id="targetFcPct" value="30" min="10" max="80" oninput="recalculateAll()" class="w-full border rounded-lg p-2">
-      </div>
-      <div class="admin-only">
-        <label class="block text-sm font-semibold mb-1" data-i18n="deliveryChannelLabel">قناة التوصيل للمقارنة</label>
-        <select id="deliveryChannel" onchange="recalculateAll()" class="w-full border rounded-lg p-2">
-          <option value="yandex" data-i18n="yandexOption">Yandex Eats (عمولة 25%)</option>
-          <option value="uzum" data-i18n="uzumOption">Uzum Tezkor (عمولة 22%)</option>
-        </select>
-      </div>
+    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+      <button class="btn btn-outline btn-sm" onclick="loadAllData()">🔄 تحديث</button>
+      <button class="btn btn-danger btn-sm" onclick="doLogout()">خروج</button>
     </div>
+  </header>
 
-    <!-- جدول مكونات الوجبة -->
-    <div class="mb-6">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-lg font-bold" data-i18n="ingredientsHeading">مكونات الوجبة (الخامات والتغليف)</h2>
-        <button type="button" onclick="addIngredientRow()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold" data-i18n="addIngredientBtn">
-          + إضافة مكون
-        </button>
-      </div>
-      
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse" id="ingredientsTable">
-          <thead>
-            <tr class="bg-slate-200 text-slate-700 text-sm">
-              <th class="p-2" data-i18n="thIngredient">المادة الخام</th>
-              <th class="p-2 admin-only" data-i18n="thPriceType">نوع السعر</th>
-              <th class="p-2" data-i18n="thQuantity">الكمية (جرام / حبة)</th>
-              <th class="p-2 admin-only" data-i18n="thCostWithWaste">التكلفة شاملة الهدر (UZS)</th>
-              <th class="p-2" data-i18n="thDelete">حذف</th>
-            </tr>
-          </thead>
-          <tbody id="recipeBody" class="divide-y"></tbody>
-        </table>
-      </div>
-    </div>
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="perfTab" onclick="switchTab('perfTab', this)">📊 شاشة الأداء والتقارير</button>
+    <button class="tab-btn" data-tab="inventoryTab" onclick="switchTab('inventoryTab', this)">📦 المخزن والجرد الدوري</button>
+    <button class="tab-btn" data-tab="purchasesTab" onclick="switchTab('purchasesTab', this)">🛒 مشتريات الخامات</button>
+    <button class="tab-btn" data-tab="expensesTab" onclick="switchTab('expensesTab', this)">💸 المصروفات</button>
+    <button class="tab-btn" data-tab="closingTab" onclick="switchTab('closingTab', this)">🧾 الإغلاق اليومي</button>
+    <button class="tab-btn" data-tab="materialsTab" onclick="switchTab('materialsTab', this)">🥩 المواد الخام</button>
+    <button class="tab-btn" data-tab="hrTab" onclick="switchTab('hrTab', this)">👥 الموظفون والدوام (أوزبكستان)</button>
+    <button class="tab-btn" data-tab="mealsTab" onclick="switchTab('mealsTab', this)">🍽️ الوجبات والوصفات</button>
+    <button class="tab-btn" data-tab="settingsTab" onclick="switchTab('settingsTab', this)">⚙️ الإعدادات</button>
+  </nav>
 
-    <!-- بطاقات النتائج والتسعير (تظهر للمدير فقط) -->
-    <div class="admin-only grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-slate-800 text-white p-5 rounded-xl">
-        <span class="text-slate-400 text-xs uppercase" data-i18n="cardTotalCostTitle">التكلفة الفعلية للوجبة</span>
-        <div class="text-2xl font-bold mt-1" id="displayTotalCost">0 UZS</div>
-        <p class="text-xs text-slate-300 mt-2" id="costBreakdown">خامات: 0 | تشغيل: 0</p>
-      </div>
+  <div class="container">
 
-      <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-xl">
-        <span class="text-emerald-700 text-xs font-bold" data-i18n="cardDineInTitle">سعر البيع في الصالة (Dine-in)</span>
-        <div class="text-2xl font-extrabold text-emerald-900 mt-1" id="displayDineInPrice">0 UZS</div>
-        <p class="text-xs text-emerald-700 mt-2" id="dineInProfit">صافي الربح: 0 UZS</p>
-      </div>
-
-      <div class="bg-purple-50 border border-purple-200 p-5 rounded-xl">
-        <span class="text-purple-700 text-xs font-bold" data-i18n="cardDeliveryTitle">سعر البيع على تطبيق التوصيل</span>
-        <div class="text-2xl font-extrabold text-purple-900 mt-1" id="displayDeliveryPrice">0 UZS</div>
-        <p class="text-xs text-purple-700 mt-2" data-i18n="cardDeliverySub">يعوض عمولة التطبيق ليحافظ على ربحك</p>
-      </div>
-    </div>
-
-    <!-- زر الحفظ واختبار التضخم -->
-    <div class="admin-only flex flex-col md:flex-row justify-between items-center gap-4 border-t pt-4">
-      <div class="flex items-center gap-2">
-        <input type="checkbox" id="inflationSim" onchange="recalculateAll()" class="w-4 h-4 accent-amber-600">
-        <label for="inflationSim" class="text-sm font-semibold text-amber-800" data-i18n="inflationSimLabel">
-          محاكاة ارتفاع أسعار الخضار والمواد المتغيرة بنسبة +20% (اختبار الموسم الشتوي)
-        </label>
-      </div>
-      <button type="button" onclick="saveMealToSheet()" id="saveBtn" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow" data-i18n="saveMealBtn">
-        💾 حفظ الوجبة في Google Sheets
-      </button>
-    </div>
-  </div>
-
-  <!-- 3. بطاقة الوصفة النظيفة للشيف (تظهر عند الطباعة فقط) -->
-  <div id="chefPrintCard">
-    <div class="border-2 border-slate-800 rounded-xl p-6 max-w-3xl mx-auto">
-      <div class="flex justify-between items-center border-b-2 border-slate-800 pb-4 mb-6">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-600" data-i18n="chefCardBadge">بطاقة تحضير المطبخ</span>
-          <h2 id="chefCardMealName" class="text-3xl font-extrabold text-slate-900 mt-1">-</h2>
-        </div>
-        <div class="text-sm font-semibold text-slate-700" id="chefCardDate"></div>
-      </div>
-
-      <table class="w-full border-collapse border border-slate-400" id="chefPrintTable">
-        <thead>
-          <tr class="bg-slate-200 text-slate-900 text-sm">
-            <th class="border border-slate-400 p-3" data-i18n="chefThNum">#</th>
-            <th class="border border-slate-400 p-3" data-i18n="chefThIngredient">المكون</th>
-            <th class="border border-slate-400 p-3" data-i18n="chefThWeight">الوزن / الكمية</th>
-          </tr>
-        </thead>
-        <tbody id="chefPrintBody"></tbody>
-      </table>
-
-      <div class="mt-6 pt-4 border-t border-slate-300 flex justify-between items-center text-xs text-slate-600">
-        <span data-i18n="chefCardFooterNote">نسخة مخصصة للمطبخ — بدون بيانات تسعير أو تكاليف</span>
-        <span data-i18n="chefCardCheckLabel">مراجعة الوزن قبل التحضير ✓</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- نافذة التحديث السريع للأسعار المتغيرة -->
-  <div id="priceModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-xl max-w-md w-full p-6">
-      <h3 class="text-lg font-bold mb-4" data-i18n="modalTitle">تحديث أسعار المواد المتغيرة (السوق اليومي)</h3>
-      <div id="variableIngredientsList" class="space-y-3 max-h-64 overflow-y-auto mb-4"></div>
-      <div class="flex justify-end gap-2">
-        <button type="button" onclick="closePriceModal()" class="px-4 py-2 bg-slate-200 rounded-lg text-sm font-semibold" data-i18n="modalCloseBtn">إغلاق</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // ضع رابط Web App الخاص بـ Google Apps Script هنا
-    const API_URL = "https://script.google.com/macros/s/AKfycbxfx8IZNYiwJV2xKUMgRRQKPkEfG9agVf-r_RVkiY2Sn95vXTUcpeLZ3iXQet1kM5aM/exec";
-    
-    let currentLang = 'ar';
-    let currentUser = null;
-    let ingredientsDB = [];
-    let settingsDB = { overhead_pct: 0.15, tax_pct: 0.04, yandex_commission_pct: 0.25, uzum_commission_pct: 0.22 };
-
-    const translations = {
-      ar: {
-        dir: 'rtl',
-        loginTitle: "تسجيل الدخول للنظام",
-        loginSubtitle: "إدارة تكاليف الوجبات والتسعير — أوزبكستان",
-        usernameLabel: "اسم المستخدم",
-        passwordLabel: "كلمة المرور",
-        loginBtn: "دخول",
-        loggingInBtn: "جاري التحقق...",
-        loginErrorText: "اسم المستخدم أو كلمة المرور غير صحيحة",
-        logoutBtn: "خروج",
-        appTitle: "حاسبة تكاليف وتسعير المطعم (UZS)",
-        appSubtitle: "مرتبطة مباشرة بـ Google Sheets",
-        printChefBtn: "🖨️ بطاقة الشيف (PDF)",
-        updatePricesBtn: "⚡ تحديث الأسعار المتغيرة",
-        mealNameLabel: "اسم الوجبة",
-        mealNamePlaceholder: "مثال: بلوف طشقندي (Toshkent oshi)",
-        targetFcLabel: "نسبة تكلفة الطعام المستهدفة (%)",
-        deliveryChannelLabel: "قناة التوصيل للمقارنة",
-        yandexOption: "Yandex Eats (عمولة 25%)",
-        uzumOption: "Uzum Tezkor (عمولة 22%)",
-        ingredientsHeading: "مكونات الوجبة (الخامات والتغليف)",
-        addIngredientBtn: "+ إضافة مكون",
-        thIngredient: "المادة الخام",
-        thPriceType: "نوع السعر",
-        thQuantity: "الكمية (جرام / حبة)",
-        thCostWithWaste: "التكلفة شاملة الهدر (UZS)",
-        thDelete: "حذف",
-        cardTotalCostTitle: "التكلفة الفعلية للوجبة",
-        cardDineInTitle: "سعر البيع في الصالة (Dine-in)",
-        cardDeliveryTitle: "سعر البيع على تطبيق التوصيل",
-        cardDeliverySub: "يعوض عمولة التطبيق ليحافظ على ربحك",
-        inflationSimLabel: "محاكاة ارتفاع أسعار الخضار والمواد المتغيرة بنسبة +20%",
-        saveMealBtn: "💾 حفظ الوجبة في Google Sheets",
-        savingBtn: "جاري الحفظ...",
-        modalTitle: "تحديث أسعار المواد المتغيرة (السوق اليومي)",
-        modalCloseBtn: "إغلاق",
-        modalSaveBtn: "حفظ",
-        typeFixed: "ثابت",
-        typeVariable: "متغير (موسمي)",
-        defaultMealName: "وصفة بدون اسم",
-        chefCardBadge: "بطاقة تحضير المطبخ",
-        chefThNum: "#",
-        chefThIngredient: "المكون",
-        chefThWeight: "الوزن / الكمية",
-        chefCardFooterNote: "نسخة مخصصة للمطبخ — بدون بيانات تسعير أو تكاليف",
-        chefCardCheckLabel: "مراجعة الوزن قبل التحضير ✓",
-        unitGramsOrPcs: "جرام / حبة",
-        breakdownText: (food, overhead) => `خامات وهدر: ${food} | تشغيل: ${overhead}`,
-        netProfitText: (profit) => `صافي الربح الصافي: ${profit} UZS`,
-        alertEnterName: "يرجى إدخال اسم الوجبة أولاً",
-        alertNoIngredients: "أضف مكوناً واحداً على الأقل لطباعة بطاقة الشيف.",
-        alertSaved: "تم حفظ الوجبة وتسعيرتها بنجاح في قاعدة البيانات!",
-        alertPriceUpdated: "تم تحديث السعر في Google Sheets! سيتم إعادة تحميل البيانات.",
-        alertApiError: "تعذر الاتصال بـ Google Apps Script. تأكد من الرابط."
-      },
-      uz: {
-        dir: 'ltr',
-        loginTitle: "Tizimga kirish",
-        loginSubtitle: "Restoran tannarx va narxlash tizimi — O'zbekiston",
-        usernameLabel: "Foydalanuvchi nomi",
-        passwordLabel: "Parol",
-        loginBtn: "Kirish",
-        loggingInBtn: "Tekshirilmoqda...",
-        loginErrorText: "Login yoki parol noto'g'ri",
-        logoutBtn: "Chiqish",
-        appTitle: "Restoran Tannarx va Narxlash Kalkulyatori (UZS)",
-        appSubtitle: "Google Sheets bilan ulangan",
-        printChefBtn: "🖨️ Oshpaz kartasi (PDF)",
-        updatePricesBtn: "⚡ O'zgaruvchan narxlarni yangilash",
-        mealNameLabel: "Taom nomi",
-        mealNamePlaceholder: "Masalan: Toshkent oshi",
-        targetFcLabel: "Maqsadli Food Cost foizi (%)",
-        deliveryChannelLabel: "Yetkazib berish xizmati",
-        yandexOption: "Yandex Eats (Komissiya 25%)",
-        uzumOption: "Uzum Tezkor (Komissiya 22%)",
-        ingredientsHeading: "Taom tarkibi (Masalliqlar va qadoqlash)",
-        addIngredientBtn: "+ Masalliq qo'shish",
-        thIngredient: "Xomashyo nomi",
-        thPriceType: "Narx turi",
-        thQuantity: "Miqdori (gramm / dona)",
-        thCostWithWaste: "Yo'qotish bilan tannarx (UZS)",
-        thDelete: "O'chirish",
-        cardTotalCostTitle: "Taomning haqiqiy tannarxi",
-        cardDineInTitle: "Zalda sotish narxi (Dine-in)",
-        cardDeliveryTitle: "Yetkazib berish ilovasidagi narx",
-        cardDeliverySub: "Ilova komissiyasini qoplaydi va foydani saqlaydi",
-        inflationSimLabel: "Sabzavot narxlari +20% oshishini simulyatsiya qilish",
-        saveMealBtn: "💾 Taomni Google Sheets-ga saqlash",
-        savingBtn: "Saqlanmoqda...",
-        modalTitle: "O'zgaruvchan mahsulotlar narxini yangilash",
-        modalCloseBtn: "Yopish",
-        modalSaveBtn: "Saqlash",
-        typeFixed: "Doimiy",
-        typeVariable: "O'zgaruvchan (Mavsumiy)",
-        defaultMealName: "Nomsiz taom",
-        chefCardBadge: "Oshxona tayyorlash kartasi",
-        chefThNum: "#",
-        chefThIngredient: "Masalliq",
-        chefThWeight: "Vazni / Miqdori",
-        chefCardFooterNote: "Faqat oshxona uchun — narxlar va tannarxsiz",
-        chefCardCheckLabel: "Tayyorlashdan oldin vaznni tekshiring ✓",
-        unitGramsOrPcs: "gramm / dona",
-        breakdownText: (food, overhead) => `Masalliqlar: ${food} | Xarajatlar: ${overhead}`,
-        netProfitText: (profit) => `Sof foyda: ${profit} UZS`,
-        alertEnterName: "Iltimos, avval taom nomini kiriting",
-        alertNoIngredients: "Oshpaz kartasini chop etish uchun kamida bitta masalliq qo'shing.",
-        alertSaved: "Taom va uning narxi bazaga muvaffaqiyatli saqlandi!",
-        alertPriceUpdated: "Narx Google Sheets-da yangilandi!",
-        alertApiError: "Google Apps Script havolasini tekshiring."
-      },
-      ru: {
-        dir: 'ltr',
-        loginTitle: "Вход в систему",
-        loginSubtitle: "Управление себестоимостью и ценами — Узбекистан",
-        usernameLabel: "Имя пользователя",
-        passwordLabel: "Пароль",
-        loginBtn: "Войти",
-        loggingInBtn: "Проверка...",
-        loginErrorText: "Неверное имя пользователя или пароль",
-        logoutBtn: "Выход",
-        appTitle: "Калькулятор себестоимости и цен ресторана (UZS)",
-        appSubtitle: "Интеграция с Google Sheets",
-        printChefBtn: "🖨️ Карта повара (PDF)",
-        updatePricesBtn: "⚡ Обновить сезонные цены",
-        mealNameLabel: "Название блюда",
-        mealNamePlaceholder: "Например: Ташкентский плов",
-        targetFcLabel: "Целевой Food Cost (%)",
-        deliveryChannelLabel: "Канал доставки для сравнения",
-        yandexOption: "Yandex Eats (Комиссия 25%)",
-        uzumOption: "Uzum Tezkor (Комиссия 22%)",
-        ingredientsHeading: "Состав блюда (Ингредиенты и упаковка)",
-        addIngredientBtn: "+ Добавить ингредиент",
-        thIngredient: "Ингредиент",
-        thPriceType: "Тип цены",
-        thQuantity: "Количество (грамм / шт)",
-        thCostWithWaste: "Себестоимость с учетом потерь (UZS)",
-        thDelete: "Удалить",
-        cardTotalCostTitle: "Полная себестоимость блюда",
-        cardDineInTitle: "Цена в зале (Dine-in)",
-        cardDeliveryTitle: "Цена в приложении доставки",
-        cardDeliverySub: "Покрывает комиссию агрегатора, сохраняя прибыль",
-        inflationSimLabel: "Симуляция роста цен на овощи +20%",
-        saveMealBtn: "💾 Сохранить блюдо в Google Sheets",
-        savingBtn: "Сохранение...",
-        modalTitle: "Быстрое обновление рыночных цен",
-        modalCloseBtn: "Закрыть",
-        modalSaveBtn: "Сохранить",
-        typeFixed: "Фиксированная",
-        typeVariable: "Переменная (Сезонная)",
-        defaultMealName: "Блюдо без названия",
-        chefCardBadge: "Технологическая карта для кухни",
-        chefThNum: "#",
-        chefThIngredient: "Ингредиент",
-        chefThWeight: "Вес / Количество",
-        chefCardFooterNote: "Версия для кухни — без цен и себестоимости",
-        chefCardCheckLabel: "Проверка веса перед приготовлением ✓",
-        unitGramsOrPcs: "грамм / шт",
-        breakdownText: (food, overhead) => `Сырье и потери: ${food} | Расходы: ${overhead}`,
-        netProfitText: (profit) => `Чистая прибыль: ${profit} UZS`,
-        alertEnterName: "Пожалуйста, сначала введите название блюда",
-        alertNoIngredients: "Добавьте хотя бы один ингредиент для печати карты повара.",
-        alertSaved: "Блюдо и расчет цены успешно сохранены в базу!",
-        alertPriceUpdated: "Цена обновлена в Google Sheets!",
-        alertApiError: "Проверьте ссылку Google Apps Script."
-      }
-    };
-
-    function setLanguage(lang) {
-      currentLang = lang;
-      const t = translations[lang];
-
-      document.documentElement.lang = lang;
-      document.documentElement.dir = t.dir;
-
-      const alignClass = t.dir === 'rtl' ? 'text-right' : 'text-left';
-      document.getElementById('ingredientsTable').className = `w-full border-collapse ${alignClass}`;
-      document.getElementById('chefPrintTable').className = `w-full border-collapse border border-slate-400 ${alignClass}`;
-
-      document.querySelectorAll('.lang-btn, .lang-btn-login').forEach(btn => {
-        btn.classList.remove('bg-emerald-600', 'text-white');
-        btn.classList.add('text-slate-700');
-      });
-      const activeMainBtn = document.getElementById(`btn-${lang}`);
-      if (activeMainBtn) {
-        activeMainBtn.classList.add('bg-emerald-600', 'text-white');
-        activeMainBtn.classList.remove('text-slate-700');
-      }
-
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (t[key]) el.textContent = t[key];
-      });
-
-      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-i18n-placeholder');
-        if (t[key]) el.placeholder = t[key];
-      });
-
-      recalculateAll();
-    }
-
-    // معالجة تسجيل الدخول
-    async function handleLogin(e) {
-      e.preventDefault();
-      const t = translations[currentLang];
-      const username = document.getElementById('loginUsername').value;
-      const password = document.getElementById('loginPassword').value;
-      const btn = document.getElementById('loginSubmitBtn');
-      const errBox = document.getElementById('loginError');
-
-      btn.textContent = t.loggingInBtn;
-      btn.disabled = true;
-      errBox.classList.add('hidden');
-
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'login', username, password })
-        });
-        const data = await res.json();
-
-        if (data.status === 'success') {
-          currentUser = data.user;
-          sessionStorage.setItem('uz_rest_user', JSON.stringify(currentUser));
-          await unlockApp();
-        } else {
-          errBox.textContent = t.loginErrorText;
-          errBox.classList.remove('hidden');
-        }
-      } catch (err) {
-        errBox.textContent = t.alertApiError;
-        errBox.classList.remove('hidden');
-      } finally {
-        btn.textContent = t.loginBtn;
-        btn.disabled = false;
-      }
-    }
-
-    async function unlockApp() {
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('mainAppContainer').classList.remove('hidden');
-      document.body.classList.remove('items-center', 'justify-center');
-      document.getElementById('loggedUserDisplay').textContent = `${currentUser.full_name} (${currentUser.role})`;
-
-      // إخفاء العناصر المالية عن الشيف تلقائياً
-      if (currentUser.role !== 'admin') {
-        document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-      } else {
-        document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-      }
-
-      await loadDatabaseData();
-    }
-
-    function logout() {
-      sessionStorage.removeItem('uz_rest_user');
-      location.reload();
-    }
-
-    async function loadDatabaseData() {
-      try {
-        const res = await fetch(`${API_URL}?action=getData`);
-        const data = await res.json();
-        ingredientsDB = data.ingredients;
-        settingsDB = data.settings;
-        if (document.getElementById('recipeBody').children.length === 0) {
-          addIngredientRow();
-        }
-        recalculateAll();
-      } catch (err) {
-        alert(translations[currentLang].alertApiError);
-      }
-    }
-
-    function printChefRecipeCard() {
-      const t = translations[currentLang];
-      const rows = document.querySelectorAll('#recipeBody tr');
-      if (rows.length === 0) return alert(t.alertNoIngredients);
-
-      const mealNameInput = document.getElementById('mealName').value.trim();
-      document.getElementById('chefCardMealName').textContent = mealNameInput || t.defaultMealName;
-      const localeMap = { ar: 'ar-EG', uz: 'uz-UZ', ru: 'ru-RU' };
-      document.getElementById('chefCardDate').textContent = new Date().toLocaleDateString(localeMap[currentLang] || 'en-US');
-
-      const chefBody = document.getElementById('chefPrintBody');
-      chefBody.innerHTML = '';
-
-      let index = 1;
-      rows.forEach(row => {
-        const selectEl = row.querySelector('.ing-select');
-        const qtyVal = parseFloat(row.querySelector('.qty-input').value) || 0;
-        const selectedText = selectEl.options[selectEl.selectedIndex]?.text || '';
-        const cleanIngredientName = selectedText.split(' (')[0].trim();
-
-        const tr = document.createElement('tr');
-        tr.className = index % 2 === 0 ? 'bg-slate-50' : 'bg-white';
-        tr.innerHTML = `
-          <td class="border border-slate-400 p-3 font-bold text-center">${index}</td>
-          <td class="border border-slate-400 p-3 font-semibold text-slate-900">${cleanIngredientName}</td>
-          <td class="border border-slate-400 p-3 font-bold text-slate-900">${qtyVal.toLocaleString()} ${t.unitGramsOrPcs}</td>
-        `;
-        chefBody.appendChild(tr);
-        index++;
-      });
-
-      window.print();
-    }
-
-    function addIngredientRow() {
-      const tbody = document.getElementById('recipeBody');
-      const row = document.createElement('tr');
-      const isAdmin = currentUser && currentUser.role === 'admin';
-      
-      let optionsHtml = ingredientsDB.map(ing => {
-        const priceLabel = isAdmin ? ` (${Math.round(ing.purchase_price).toLocaleString()} UZS/${ing.unit})` : '';
-        return `<option value="${ing.id}">${ing.name}${priceLabel}</option>`;
-      }).join('');
-
-      row.innerHTML = `
-        <td class="p-2">
-          <select class="ing-select w-full border rounded p-1.5 text-sm" onchange="recalculateAll()">
-            ${optionsHtml}
-          </select>
-        </td>
-        <td class="p-2 text-xs font-semibold type-badge admin-only ${isAdmin ? '' : 'hidden'}">-</td>
-        <td class="p-2">
-          <input type="number" class="qty-input w-28 border rounded p-1.5 text-sm" value="100" min="1" oninput="recalculateAll()">
-        </td>
-        <td class="p-2 font-bold text-slate-700 row-cost admin-only ${isAdmin ? '' : 'hidden'}">0 UZS</td>
-        <td class="p-2">
-          <button type="button" onclick="this.closest('tr').remove(); recalculateAll();" class="text-red-500 hover:text-red-700 font-bold">✕</button>
-        </td>
-      `;
-      tbody.appendChild(row);
-      recalculateAll();
-    }
-
-    function uzbekRound(price) {
-      let rounded = Math.round(price / 1000) * 1000;
-      let rem = rounded % 10000;
-      if (rem === 1000 || rem === 2000) return rounded - rem;
-      if (rem === 8000) return rounded + 1000;
-      return rounded;
-    }
-
-    function recalculateAll() {
-      const t = translations[currentLang];
-      const rows = document.querySelectorAll('#recipeBody tr');
-      const simulateInflation = document.getElementById('inflationSim')?.checked || false;
-      let totalFoodCost = 0;
-
-      rows.forEach(row => {
-        const ingId = row.querySelector('.ing-select').value;
-        const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
-        const ing = ingredientsDB.find(i => i.id === ingId);
-
-        if (ing) {
-          let unitCost = ing.effective_unit_cost;
-          const isVariable = ing.price_type.includes('متغير') || ing.price_type.toLowerCase().includes('var');
-          
-          const badge = row.querySelector('.type-badge');
-          if (badge) {
-            badge.textContent = isVariable ? t.typeVariable : t.typeFixed;
-            badge.className = `p-2 text-xs font-semibold type-badge admin-only ${currentUser?.role === 'admin' ? '' : 'hidden'} ${isVariable ? 'text-amber-600' : 'text-blue-600'}`;
-          }
-
-          if (simulateInflation && isVariable) unitCost *= 1.20;
-
-          const lineCost = unitCost * qty;
-          totalFoodCost += lineCost;
-          const costCell = row.querySelector('.row-cost');
-          if (costCell) costCell.textContent = Math.round(lineCost).toLocaleString() + ' UZS';
-        }
-      });
-
-      const overheadCost = totalFoodCost * settingsDB.overhead_pct;
-      const totalUnitCost = totalFoodCost + overheadCost;
-      const targetFcPct = (parseFloat(document.getElementById('targetFcPct')?.value) || 30) / 100;
-      const basePrice = totalUnitCost / targetFcPct;
-
-      const rawDineIn = basePrice / (1 - settingsDB.tax_pct);
-      const finalDineIn = uzbekRound(rawDineIn);
-      const netDineInProfit = (finalDineIn * (1 - settingsDB.tax_pct)) - totalUnitCost;
-
-      const channel = document.getElementById('deliveryChannel')?.value || 'yandex';
-      const commPct = channel === 'yandex' ? settingsDB.yandex_commission_pct : settingsDB.uzum_commission_pct;
-      const rawDelivery = basePrice / (1 - settingsDB.tax_pct - commPct);
-      const finalDelivery = uzbekRound(rawDelivery);
-
-      document.getElementById('displayTotalCost').textContent = Math.round(totalUnitCost).toLocaleString() + ' UZS';
-      document.getElementById('costBreakdown').textContent = t.breakdownText(
-        Math.round(totalFoodCost).toLocaleString(),
-        Math.round(overheadCost).toLocaleString()
-      );
-      document.getElementById('displayDineInPrice').textContent = finalDineIn.toLocaleString() + ' UZS';
-      document.getElementById('dineInProfit').textContent = t.netProfitText(Math.round(netDineInProfit).toLocaleString());
-      document.getElementById('displayDeliveryPrice').textContent = finalDelivery.toLocaleString() + ' UZS';
-    }
-
-    function openPriceModal() {
-      const t = translations[currentLang];
-      const container = document.getElementById('variableIngredientsList');
-      const variableItems = ingredientsDB.filter(i => i.price_type.includes('متغير') || i.price_type.toLowerCase().includes('var'));
-      
-      container.innerHTML = variableItems.map(item => `
-        <div class="flex justify-between items-center border-b pb-2">
-          <span class="text-sm font-semibold">${item.name} (${item.unit})</span>
-          <div class="flex gap-1">
-            <input type="number" id="upd-${item.id}" value="${item.purchase_price}" class="w-24 border rounded p-1 text-sm">
-            <button type="button" onclick="updateSinglePrice('${item.id}')" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs">${t.modalSaveBtn}</button>
+    <!-- ==================== 1. شاشة الأداء والتقارير التفاعلية ==================== -->
+    <div id="perfTab" class="section active">
+      <div class="card">
+        <div class="card-header" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+          <div>
+            <h2 class="card-title">📊 شاشة الأداء والتقارير المالية التفاعلية</h2>
+            <div class="card-sub">تحليل فوري للإيرادات، المصروفات المدمجة، الجرد الدوري وتكلفة الرواتب</div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+            <div class="filter-pills">
+              <button class="chip-btn" onclick="setQuickRange(0, this)">اليوم</button>
+              <button class="chip-btn" onclick="setQuickRange(7, this)">7 أيام</button>
+              <button class="chip-btn active" onclick="setQuickRange(30, this)">30 يوماً</button>
+            </div>
+            <input type="date" id="perfFrom" style="width: auto;" />
+            <span style="color: var(--muted); font-weight: 700;">إلى</span>
+            <input type="date" id="perfTo" style="width: auto;" />
+            <button class="btn btn-primary btn-sm" onclick="refreshPerformance()">تطبيق</button>
+            <button class="btn btn-outline btn-sm" onclick="exportPerformanceCsv()">📥 تصدير CSV</button>
           </div>
         </div>
-      `).join('');
-      document.getElementById('priceModal').classList.remove('hidden');
-    }
+      </div>
 
-    function closePriceModal() { document.getElementById('priceModal').classList.add('hidden'); }
+      <!-- بطاقات المؤشرات الرئيسية -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label"><span>💰 إجمالي المبيعات (POS)</span></div>
+          <div class="kpi-value" id="kpiGrossSales">0</div>
+          <div class="kpi-sub">صافي بعد الضريبة: <strong id="kpiNetSales">0</strong> | ضريبة: <strong id="kpiTaxTotal">0</strong></div>
+        </div>
 
-    async function updateSinglePrice(id) {
-      const newPrice = parseFloat(document.getElementById(`upd-${id}`).value);
-      await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'updatePrice', id: id, new_price: newPrice })
+        <div class="kpi purchase">
+          <div class="kpi-label">
+            <span>🛒 مشتريات الخامات</span>
+            <span class="pill pill-purchase" id="kpiPurchPct">0%</span>
+          </div>
+          <div class="kpi-value" id="kpiPurchases">0</div>
+          <div class="kpi-sub"><span id="kpiPurchCount">0</span> فاتورة شراء خامات</div>
+        </div>
+
+        <div class="kpi expense">
+          <div class="kpi-label">
+            <span>💸 المصروفات الأخرى</span>
+            <span class="pill pill-expense" id="kpiExpPct">0%</span>
+          </div>
+          <div class="kpi-value" id="kpiExpenses">0</div>
+          <div class="kpi-sub"><span id="kpiExpCount">0</span> بند مصروف تشغيلي/إداري</div>
+        </div>
+
+        <div class="kpi total-out">
+          <div class="kpi-label">
+            <span>📉 إجمالي المصروفات الموحد</span>
+            <span class="pill pill-bad" id="kpiOutRatio">0% من الصافي</span>
+          </div>
+          <div class="kpi-value" id="kpiTotalExpenses">0</div>
+          <div class="kpi-sub">مشتريات الخامات + المصروفات الأخرى</div>
+        </div>
+
+        <div class="kpi profit">
+          <div class="kpi-label"><span>📈 صافي التدفق التشغيلي</span></div>
+          <div class="kpi-value" id="kpiNetFlow">0</div>
+          <div class="kpi-sub">صافي المبيعات − إجمالي المصروفات الموحد</div>
+        </div>
+
+        <div class="kpi stock">
+          <div class="kpi-label"><span>📦 أثر فروقات الجرد الدوري</span></div>
+          <div class="kpi-value" id="kpiStockVar">0</div>
+          <div class="kpi-sub">فاقد جردي مسجل: <strong id="kpiStockLoss">0</strong></div>
+        </div>
+
+        <div class="kpi hr">
+          <div class="kpi-label"><span>👥 إجمالي الرواتب التقديرية</span></div>
+          <div class="kpi-value" id="kpiHrPayroll">0</div>
+          <div class="kpi-sub">خصومات: <strong id="kpiHrDed">0</strong> | إضافي/ليلي: <strong id="kpiHrBon">0</strong></div>
+        </div>
+      </div>
+
+      <!-- شريط مقارنة هيكل المصروفات المدمج -->
+      <div class="split-bar-wrap">
+        <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 14px;">
+          <span>هيكل إجمالي المصروفات (المشتريات + المصروفات)</span>
+          <span id="barTotalLabel">0 UZS</span>
+        </div>
+        <div class="split-bar">
+          <div id="barPurchFill" class="bar-purchases" style="width: 50%;"></div>
+          <div id="barExpFill" class="bar-expenses" style="width: 50%;"></div>
+        </div>
+        <div class="split-legend">
+          <span><i class="dot" style="background: var(--purchase);"></i>مشتريات الخامات: <strong id="legPurch">0</strong></span>
+          <span><i class="dot" style="background: var(--expense);"></i>المصروفات الأخرى: <strong id="legExp">0</strong></span>
+        </div>
+      </div>
+
+      <!-- رسم بياني تفاعلي لحركة المبيعات والمصروفات عبر الأيام -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">📈 المنحنى التفاعلي للمبيعات مقابل المصروفات والمشتريات</h3>
+            <div class="card-sub">مرّر المؤشر فوق أي عمود أو نقطة لعرض القيمة التفصيلية لليوم</div>
+          </div>
+          <div class="split-legend" style="font-size: 12px;">
+            <span><i class="dot" style="background: var(--primary);"></i>مبيعات POS</span>
+            <span><i class="dot" style="background: var(--purchase);"></i>مشتريات خامات</span>
+            <span><i class="dot" style="background: var(--expense);"></i>مصروفات أخرى</span>
+          </div>
+        </div>
+        <div id="interactiveChart" class="chart-box"></div>
+      </div>
+
+      <!-- تفصيل الفئات -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">🛒 تفصيل مشتريات الخامات حسب الفئة</h3>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>فئة الخامات</th><th>الإجمالي</th></tr></thead>
+              <tbody id="perfPurchCatBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">💸 تفصيل المصروفات الأخرى حسب الفئة</h3>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>فئة المصروف</th><th>الإجمالي</th></tr></thead>
+              <tbody id="perfExpCatBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 2. شاشة المخزن والجرد الدوري ==================== -->
+    <div id="inventoryTab" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">📦 تسجيل جرد دوري (Periodic Stocktake)</h2>
+            <div class="card-sub">مقارنة الرصيد الدفتري بالعد الفعلي في المخزن واحتساب الفروقات والأثر المالي وتسويته تلقائياً</div>
+          </div>
+          <span class="pill pill-stock">جرد دوري وتسوية فورية</span>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>تاريخ الجرد *</label>
+            <input type="date" id="stDate" />
+          </div>
+          <div class="field">
+            <label>الصنف / المادة الخام *</label>
+            <select id="stMaterial" onchange="onSelectStocktakeMaterial()"></select>
+          </div>
+          <div class="field">
+            <label>الرصيد الدفتري الحالي</label>
+            <input type="text" id="stSystemQtyDisplay" readonly style="background: var(--surface-2); font-weight: 700;" />
+          </div>
+          <div class="field">
+            <label>الكمية المجردة فعلياً *</label>
+            <input type="number" step="any" id="stCountedQty" placeholder="الكمية الفعلية في المخزن" oninput="previewStocktakeVariance()" />
+          </div>
+          <div class="field">
+            <label>وحدة الجرد</label>
+            <input type="text" id="stUnit" readonly style="background: var(--surface-2);" />
+          </div>
+          <div class="field">
+            <label>سبب الفرق / الجرد</label>
+            <select id="stReason">
+              <option value="جرد دوري منتظم">جرد دوري منتظم</option>
+              <option value="هالك أو تلف خامات">هالك أو تلف خامات</option>
+              <option value="استهلاك مطبخ غير مقيد">استهلاك مطبخ غير مقيد</option>
+              <option value="تسوية رصيد افتتاحي / خطأ إدخال">تسوية رصيد افتتاحي / خطأ إدخال</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>ملاحظات الجرد</label>
+            <input type="text" id="stNotes" placeholder="مثال: جرد نهاية الأسبوع" />
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px;">
+          <div id="stVariancePreview" style="font-size: 13.5px; font-weight: 700; color: var(--muted);">
+            الفرق المتوقع: 0 | الأثر المالي: 0
+          </div>
+          <button class="btn btn-stock" onclick="submitStocktake()">✅ اعتماد الجرد وتسوية المخزون</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📋 أرصدة المخزن الحالية وحالة إعادة الطلب</h3>
+          <input type="text" id="invSearch" placeholder="بحث باسم الخامة..." style="max-width: 240px;" oninput="renderInventoryTable()" />
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>الصنف</th>
+                <th>الفئة</th>
+                <th>الرصيد الدفتري</th>
+                <th>حد إعادة الطلب</th>
+                <th>حالة المخزون</th>
+                <th>آخر جرد</th>
+                <th>آخر فرق جرد</th>
+                <th>تحديث حد الطلب</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🗂️ سجل عمليات الجرد الدوري السابقة</h3>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>الصنف</th>
+                <th>الدفتري</th>
+                <th>الفعلي</th>
+                <th>الفرق</th>
+                <th>الأثر المالي</th>
+                <th>السبب</th>
+                <th>بواسطة</th>
+              </tr>
+            </thead>
+            <tbody id="stocktakesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 3. شاشة مشتريات الخامات ==================== -->
+    <div id="purchasesTab" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🛒 تسجيل فاتورة شراء خامات</h2>
+          <span class="pill pill-purchase">تُضاف تلقائياً إلى رصيد المخزن</span>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>التاريخ</label>
+            <input type="date" id="purDate" />
+          </div>
+          <div class="field">
+            <label>المادة الخام *</label>
+            <select id="purMaterial" onchange="onSelectPurchaseMaterial()"></select>
+          </div>
+          <div class="field">
+            <label>الكمية *</label>
+            <input type="number" step="any" id="purQty" placeholder="مثال: 10" oninput="calcPurchaseTotal()" />
+          </div>
+          <div class="field">
+            <label>الوحدة</label>
+            <input type="text" id="purUnit" placeholder="كجم / لتر / قطعة" />
+          </div>
+          <div class="field">
+            <label>سعر الوحدة</label>
+            <input type="number" step="any" id="purUnitPrice" placeholder="سعر الوحدة الواحدة" oninput="calcPurchaseTotal()" />
+          </div>
+          <div class="field">
+            <label>إجمالي الفاتورة *</label>
+            <input type="number" step="any" id="purTotal" oninput="onPurTotalInput()" placeholder="يُحسب تلقائياً أو أدخله مباشرة" />
+          </div>
+          <div class="field">
+            <label>المورد</label>
+            <input type="text" id="purSupplier" placeholder="اسم المورد أو السوق" />
+          </div>
+          <div class="field">
+            <label>مصدر الدفع</label>
+            <select id="purSource">
+              <option value="صندوق الكاشير">صندوق الكاشير</option>
+              <option value="تحويل بنكي / بطاقة">تحويل بنكي / بطاقة</option>
+              <option value="عهدة المدير">عهدة المدير</option>
+              <option value="حساب المالك">حساب المالك</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>رقم الإيصال / الفاتورة</label>
+            <input type="text" id="purRef" placeholder="اختياري" />
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px;">
+          <label class="checkbox-row">
+            <input type="checkbox" id="purUpdateCost" checked />
+            تحديث سعر تكلفة الخامة في قائمة المواد الخام تلقائياً
+          </label>
+          <button class="btn btn-purchase" onclick="submitPurchase()">➕ حفظ فاتورة الشراء</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">سجل مشتريات الخامات الأخيرة</h3>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>الخامة</th>
+                <th>الكمية</th>
+                <th>سعر الوحدة</th>
+                <th>الإجمالي</th>
+                <th>المورد</th>
+                <th>مصدر الدفع</th>
+                <th>بواسطة</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="purchasesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 4. شاشة المصروفات ==================== -->
+    <div id="expensesTab" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">💸 تسجيل مصروف تشغيلي / عام</h2>
+          <span class="pill pill-expense">لباقي الأمور (غير الخامات)</span>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>التاريخ</label>
+            <input type="date" id="expDate" />
+          </div>
+          <div class="field">
+            <label>تصنيف المصروف *</label>
+            <select id="expCategory">
+              <option value="رواتب وأجور">رواتب وأجور</option>
+              <option value="إيجار ومرافق">إيجار ومرافق (كهرباء/ماء/غاز)</option>
+              <option value="صيانة ونظافة">صيانة ونظافة</option>
+              <option value="تغليف ومستلزمات تشغيل">تغليف ومستلزمات تشغيل</option>
+              <option value="توصيل وتسويق">توصيل وتسويق</option>
+              <option value="نثريات وإدارية">نثريات وإدارية</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>البيان / الوصف *</label>
+            <input type="text" id="expDesc" placeholder="مثال: فاتورة كهرباء أو مرافق" />
+          </div>
+          <div class="field">
+            <label>المبلغ *</label>
+            <input type="number" step="any" id="expAmount" placeholder="0" />
+          </div>
+          <div class="field">
+            <label>مصدر الدفع</label>
+            <select id="expSource">
+              <option value="صندوق الكاشير">صندوق الكاشير</option>
+              <option value="تحويل بنكي / بطاقة">تحويل بنكي / بطاقة</option>
+              <option value="عهدة المدير">عهدة المدير</option>
+              <option value="حساب المالك">حساب المالك</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>رقم الإيصال</label>
+            <input type="text" id="expRef" placeholder="اختياري" />
+          </div>
+        </div>
+        <div style="margin-top: 14px; text-align: left;">
+          <button class="btn btn-expense" onclick="submitExpense()">➕ حفظ المصروف</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">سجل المصروفات التشغيلية والعامة</h3>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>التصنيف</th>
+                <th>البيان</th>
+                <th>المبلغ</th>
+                <th>مصدر الدفع</th>
+                <th>المرجع</th>
+                <th>بواسطة</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="expensesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 5. شاشة الإغلاق اليومي ==================== -->
+    <div id="closingTab" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🧾 الإغلاق المالي اليومي</h2>
+          <span class="pill pill-ok">التحقق من التاريخ مفعل (لا يقبل تاريخاً مستقبلياً)</span>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>التاريخ</label><input type="date" id="clDate" /></div>
+          <div class="field"><label>مبيعات الكاشير (POS) *</label><input type="number" id="clPos" placeholder="0" /></div>
+          <div class="field"><label>كاش فعلي بالدرج</label><input type="number" id="clCash" placeholder="0" /></div>
+          <div class="field"><label>بطاقات (Uzcard / Humo)</label><input type="number" id="clCard" placeholder="0" /></div>
+          <div class="field"><label>تطبيقات التوصيل</label><input type="number" id="clApps" placeholder="0" /></div>
+          <div class="field"><label>مصروفات نثرية من الدرج</label><input type="number" id="clPetty" placeholder="0" /></div>
+          <div class="field"><label>الفواتير الملغاة (Voids)</label><input type="number" id="clVoids" placeholder="0" /></div>
+          <div class="field"><label>ملاحظات</label><input type="text" id="clNotes" placeholder="ملاحظات الإغلاق" /></div>
+        </div>
+        <div style="margin-top: 14px; text-align: left;">
+          <button class="btn btn-primary" onclick="submitClosing()">✅ اعتماد الإغلاق اليومي</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">سجل الإغلاقات اليومية</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>مبيعات POS</th>
+                <th>المحصل (كاش/بطاقة/تطبيقات)</th>
+                <th>فرق الصندوق</th>
+                <th>الضريبة</th>
+                <th>بواسطة</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="closingsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 6. شاشة المواد الخام ==================== -->
+    <div id="materialsTab" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🥩 إضافة مادة خام جديدة</h2>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>اسم الخامة *</label><input type="text" id="matName" placeholder="مثال: لحم بقري" /></div>
+          <div class="field"><label>الفئة</label><input type="text" id="matCat" placeholder="لحوم / خضروات / ألبان" /></div>
+          <div class="field"><label>وحدة القياس</label><input type="text" id="matUnit" value="كجم" /></div>
+          <div class="field"><label>سعر الوحدة الافتراضي *</label><input type="number" id="matCost" placeholder="0" /></div>
+          <div class="field"><label>نسبة الصافي (Yield %)</label><input type="number" id="matYield" value="100" /></div>
+          <div class="field"><label>رصيد افتتاحي بالمخزن</label><input type="number" step="any" id="matInitQty" value="0" /></div>
+        </div>
+        <div style="margin-top: 14px; text-align: left;">
+          <button class="btn btn-primary" onclick="submitMaterial()">➕ إضافة الخامة</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">قائمة المواد الخام المسجلة</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>الخامة</th>
+                <th>الفئة</th>
+                <th>الوحدة</th>
+                <th>سعر الوحدة الحالي</th>
+                <th>نسبة الصافي</th><th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="materialsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 7. شاشة الموظفين والدوام والرواتب (معايير أوزبكستان) ==================== -->
+    <div id="mealsTab" class="section">
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">🍽️ وصفة وجبة جديدة (تكلفة علمية)</h2></div>
+        <div class="form-grid">
+          <div class="field"><label>اسم الوجبة *</label><input type="text" step="any" id="mlName" /></div><div class="field"><label>الفئة</label><input type="text" step="any" id="mlCat" /></div><div class="field"><label>سعر القائمة (اتركه 0 لاقتراح السعر)</label><input type="number" step="any" id="mlPrice" /></div><div class="field"><label>هامش الربح المستهدف % (اختياري)</label><input type="number" step="any" id="mlMargin" /></div><div class="field"><label>تكلفة التغليف للوجبة</label><input type="number" step="any" id="mlPack" /></div>
+        </div>
+        <h3 class="card-title" style="margin:14px 0 8px;">المكونات</h3>
+        <div id="mlIngBox"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="addIngRow()">➕ مكوّن</button>
+          <button class="btn btn-primary" onclick="submitMeal()">💾 حفظ الوجبة</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">الوجبات وتكلفتها وهامش ربحها</h3></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>الوجبة</th><th>الفئة</th><th>تكلفة الخامات</th><th>التكلفة الكلية</th><th>سعر القائمة</th><th>السعر المقترح</th><th>الربح الصافي</th><th>Food Cost %</th><th></th></tr></thead>
+          <tbody id="mealsTableBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div id="settingsTab" class="section">
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">⚙️ الإعدادات (للمالك)</h2></div>
+        <div class="form-grid">
+          <div class="field"><label>العملة</label><input type="text" step="any" id="sCurrency" /></div><div class="field"><label>هامش الربح الافتراضي %</label><input type="number" step="any" id="sMargin" /></div>
+          <div class="field"><label>نظام الضريبة</label><select id="sTaxMode"><option value="turnover_4">ضريبة دوران</option><option value="vat_12">VAT</option><option value="none">بدون</option></select></div>
+          <div class="field"><label>نسبة الضريبة %</label><input type="number" step="any" id="sTaxPct" /></div>
+          <div class="field"><label>نمط التكاليف غير المباشرة</label><select id="sOhMode"><option value="pct">نسبة %</option><option value="fixed">مبلغ ثابت</option></select></div>
+          <div class="field"><label>قيمة التكاليف غير المباشرة</label><input type="number" step="any" id="sOhVal" /></div><div class="field"><label>تقريب الأسعار إلى أقرب</label><input type="number" step="any" id="sRound" /></div><div class="field"><label>حد تنبيه عجز الصندوق</label><input type="number" step="any" id="sVarLimit" /></div><div class="field"><label>حد تنبيه العمليات الكبيرة</label><input type="number" step="any" id="sLargeLimit" /></div><div class="field"><label>ساعات العمل الشهرية القياسية</label><input type="number" step="any" id="sStdHours" /></div><div class="field"><label>مضاعف الإضافي</label><input type="number" step="any" id="sOt" /></div><div class="field"><label>مضاعف الليلي</label><input type="number" step="any" id="sNight" /></div><div class="field"><label>سماح التأخير (دقائق)</label><input type="number" step="any" id="sGrace" /></div><div class="field"><label>Telegram Bot Token (اتركه فارغاً للإبقاء)</label><input type="password" step="any" id="sTgToken" autocomplete="off"/></div><div class="field"><label>Telegram Chat ID</label><input type="text" step="any" id="sTgChat" /></div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="saveSettingsUi()">💾 حفظ الإعدادات</button>
+          <button class="btn btn-outline" onclick="testTg()">📨 اختبار تليجرام</button>
+          <button class="btn btn-outline" onclick="backupNowUi()">💾 نسخ احتياطي الآن</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">🔑 تغيير كلمة المرور</h3></div>
+        <div class="form-grid"><div class="field"><label>الحالية</label><input type="password" step="any" id="sOldPw" autocomplete="current-password"/></div><div class="field"><label>الجديدة (8 أحرف فأكثر)</label><input type="password" step="any" id="sNewPw" autocomplete="new-password"/></div></div>
+        <div style="margin-top:14px;"><button class="btn btn-primary" onclick="changePw()">تغيير</button></div>
+      </div>
+    </div>
+
+    <div id="hrTab" class="section">
+      <div class="info-banner">
+        🇺🇿 <strong>نظام الموارد البشرية والورديات وفق معايير العمل في أوزبكستان:</strong>
+        يتم احتساب أجر الساعة الأساسي تلقائياً بقسمة الراتب الشهري على الساعات الشهرية القياسية (الافتراضي <strong>166.7 ساعة/شهر</strong> وفق 40 ساعة أسبوعياً)، مع احتساب بدلات العمل الإضافي والليلي (22:00 - 06:00) وخصم التأخيرات والإجازات غير المدفوعة بمرونة كاملة في إدارة الورديات.
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi hr">
+          <div class="kpi-label"><span>👥 عدد الموظفين</span></div>
+          <div class="kpi-value" id="hrEmpCount">0</div>
+          <div class="kpi-sub">معيار الساعات: <strong id="hrStdHours">166.7</strong> ساعة/شهر</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label"><span>💼 إجمالي الرواتب الأساسية</span></div>
+          <div class="kpi-value" id="hrBaseTotal">0</div>
+          <div class="kpi-sub">قبل البدلات والخصومات</div>
+        </div>
+        <div class="kpi total-out">
+          <div class="kpi-label"><span>➖ إجمالي الخصومات والإجازات غير المدفوعة</span></div>
+          <div class="kpi-value" id="hrDedTotal">0</div>
+          <div class="kpi-sub">دقائق تأخير: <strong id="hrLateMins">0</strong> دقيقة</div>
+        </div>
+        <div class="kpi profit">
+          <div class="kpi-label"><span>💵 صافي الرواتب التقديرية المستحقة</span></div>
+          <div class="kpi-value" id="hrNetTotal">0</div>
+          <div class="kpi-sub">إضافي: <strong id="hrOtHours">0</strong> س | بدلات: <strong id="hrBonTotal">0</strong></div>
+        </div>
+      </div>
+
+      <div class="sub-tabs">
+        <button class="chip-btn active" data-hrsub="hrRosterSub" onclick="switchHrSub('hrRosterSub', this)">📋 الموظفون والورديات وأجر الساعة</button>
+        <button class="chip-btn" data-hrsub="hrAttSub" onclick="switchHrSub('hrAttSub', this)">🕒 تسجيل الحضور والانصراف والخصومات</button>
+        <button class="chip-btn" data-hrsub="hrLeaveSub" onclick="switchHrSub('hrLeaveSub', this)">🏖️ الإجازات والغياب</button>
+      </div>
+
+      <!-- القسم الفرعي 1: الموظفون والورديات -->
+      <div id="hrRosterSub" class="hr-sub">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">➕ إضافة / تعديل موظف ومرونة الورديات</h3>
+            <button class="btn btn-outline btn-sm" onclick="resetEmployeeForm()">تفريغ الحقول</button>
+          </div>
+          <input type="hidden" id="empEditId" />
+          <div class="form-grid">
+            <div class="field"><label>اسم الموظف الكامل *</label><input type="text" id="empName" placeholder="الاسم الثلاثي" /></div>
+            <div class="field"><label>المسمى الوظيفي</label><input type="text" id="empPos" placeholder="طباخ / كاشير / ويتر / باريستا" /></div>
+            <div class="field"><label>القسم</label><input type="text" id="empDept" value="المطبخ والصالة" /></div>
+            <div class="field">
+              <label>اسم الوردية (مرن)</label>
+              <input type="text" id="empShiftName" value="وردية صباحية" placeholder="مثال: صباحية / مسائية / ليلية / مرنة" />
+            </div>
+            <div class="field"><label>بداية الوردية</label><input type="time" id="empShiftStart" value="09:00" /></div>
+            <div class="field"><label>نهاية الوردية</label><input type="time" id="empShiftEnd" value="18:00" /></div>
+            <div class="field">
+              <label>الراتب الشهري (UZS) *</label>
+              <input type="number" step="any" id="empSalary" placeholder="0" oninput="calcPreviewHourlyRate()" />
+            </div>
+            <div class="field">
+              <label>ساعات العمل الشهرية القياسية</label>
+              <input type="number" step="any" id="empStdHours" value="166.7" oninput="calcPreviewHourlyRate()" />
+              <span class="hint">معيار أوزبكستان: 166.7 ساعة</span>
+            </div>
+            <div class="field">
+              <label>أجر الساعة التقديري (UZS)</label>
+              <input type="number" step="any" id="empHourlyPreview" placeholder="يُحسب تلقائياً" />
+              <span class="hint">اتركه أو عدّله لتحديد أجر الساعة</span>
+            </div>
+            <div class="field"><label>مضاعف العمل الإضافي</label><input type="number" step="0.1" id="empOtMult" value="1.5" /></div>
+            <div class="field"><label>مضاعف العمل الليلي</label><input type="number" step="0.1" id="empNightMult" value="1.5" /></div>
+            <div class="field"><label>تاريخ التعيين</label><input type="date" id="empHireDate" /></div>
+            <div class="field">
+              <label>الحالة</label>
+              <select id="empStatus">
+                <option value="نشط">نشط</option>
+                <option value="في إجازة">في إجازة</option>
+                <option value="موقوف">موقوف</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top: 14px; text-align: left;">
+            <button class="btn btn-primary" onclick="submitEmployee()">💾 حفظ بيانات الموظف والوردية</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">كشف الموظفين وأجر الساعة والرواتب المستحقة</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>الموظف</th>
+                  <th>الوظيفة</th>
+                  <th>الوردية والوقت</th>
+                  <th>الراتب الأساسي</th>
+                  <th>أجر الساعة</th>
+                  <th>ساعات إضافية</th>
+                  <th>تأخير (د)</th>
+                  <th>الخصومات</th>
+                  <th>البدلات</th>
+                  <th>صافي الراتب التقديري</th>
+                  <th>تعديل</th>
+                </tr>
+              </thead>
+              <tbody id="employeesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- القسم الفرعي 2: الحضور والانصراف والخصومات -->
+      <div id="hrAttSub" class="hr-sub" style="display: none;">
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">🕒 تسجيل حضور وانصراف وخصومات</h3></div>
+          <div class="form-grid">
+            <div class="field"><label>التاريخ *</label><input type="date" id="attDate" /></div>
+            <div class="field"><label>الموظف *</label><select id="attEmployee" onchange="onSelectAttEmployee()"></select></div>
+            <div class="field">
+              <label>الحالة *</label>
+              <select id="attStatus">
+                <option value="حاضر">حاضر</option>
+                <option value="متأخر">متأخر</option>
+                <option value="غياب بدون إذن">غياب بدون إذن</option>
+                <option value="غياب بعذر">غياب بعذر</option>
+                <option value="إجازة">إجازة</option>
+              </select>
+            </div>
+            <div class="field"><label>الوردية المنفذة</label><input type="text" id="attShiftName" placeholder="اسم الوردية" /></div>
+            <div class="field"><label>وقت الدخول</label><input type="time" id="attCheckIn" /></div>
+            <div class="field"><label>وقت الانصراف</label><input type="time" id="attCheckOut" /></div>
+            <div class="field"><label>خصم إضافي يدوي (اختياري)</label><input type="number" id="attManualDed" placeholder="0" /></div>
+            <div class="field"><label>مكافأة / بدل إضافي يدوي</label><input type="number" id="attManualBon" placeholder="0" /></div>
+            <div class="field"><label>ملاحظات</label><input type="text" id="attNotes" placeholder="ملاحظات الحضور أو الخصم" /></div>
+          </div>
+          <div style="margin-top: 14px; text-align: left;">
+            <button class="btn btn-primary" onclick="submitAttendance()">➕ حفظ سجل الدوام</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">سجل الحضور والانصراف والخصومات</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>التاريخ</th>
+                  <th>الموظف</th>
+                  <th>الوردية</th>
+                  <th>الحالة</th>
+                  <th>دخول - خروج</th>
+                  <th>ساعات أساسية</th>
+                  <th>ساعات إضافية</th>
+                  <th>تأخير (د)</th>
+                  <th>الخصم</th>
+                  <th>البدل</th>
+                  <th>إجراء</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- القسم الفرعي 3: الإجازات -->
+      <div id="hrLeaveSub" class="hr-sub" style="display: none;">
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">🏖️ تسجيل إجازة موظف</h3></div>
+          <div class="form-grid">
+            <div class="field"><label>الموظف *</label><select id="lvEmployee"></select></div>
+            <div class="field">
+              <label>نوع الإجازة</label>
+              <select id="lvType">
+                <option value="إجازة سنوية">إجازة سنوية</option>
+                <option value="إجازة مرضية">إجازة مرضية</option>
+                <option value="إجازة عارضة / طارئة">إجازة عارضة / طارئة</option>
+                <option value="إجازة بدون راتب">إجازة بدون راتب</option>
+              </select>
+            </div>
+            <div class="field"><label>من تاريخ *</label><input type="date" id="lvStart" /></div>
+            <div class="field"><label>إلى تاريخ *</label><input type="date" id="lvEnd" /></div>
+            <div class="field">
+              <label>احتساب الأجر</label>
+              <select id="lvPaid">
+                <option value="مدفوعة">مدفوعة</option>
+                <option value="غير مدفوعة">غير مدفوعة (يُخصم من الراتب)</option>
+              </select>
+            </div>
+            <div class="field"><label>السبب / ملاحظات</label><input type="text" id="lvReason" placeholder="تفاصيل الإجازة" /></div>
+          </div>
+          <div style="margin-top: 14px; text-align: left;">
+            <button class="btn btn-primary" onclick="submitLeave()">➕ تسجيل الإجازة</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">سجل الإجازات</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>الموظف</th>
+                  <th>النوع</th>
+                  <th>الفترة</th>
+                  <th>الأيام</th>
+                  <th>حالة الأجر</th>
+                  <th>السبب</th>
+                </tr>
+              </thead>
+              <tbody id="leavesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // رابط الخادم مثبت داخلياً ولا يُعرض في شاشة تسجيل الدخول
+  const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxiPXh6S06QvQV77Twl78f-eLKYE6OdtooCx8hK2q0VD1lFFZg6Oe7FQe0lRRVi9PAxQA/exec';
+
+  let STATE = {
+    apiUrl: (function () { try { const q = new URLSearchParams(location.search).get('api'); if (q && /^https:\/\/script\.google\.com\//.test(q)) localStorage.setItem('rest_api_url', q); } catch (_) {} return localStorage.getItem('rest_api_url') || DEFAULT_API_URL; })(),
+    token: localStorage.getItem('rest_token') || '',
+    today: localISO(new Date()),
+    me: null,
+    S: { currency: 'UZS', uz_std_monthly_hours: 166.7 },
+    materials: [],
+    inventory: [],
+    stocktakes: [],
+    purchases: [],
+    expenses: [],
+    closings: [],
+    employees: [],
+    attendance: [],
+    leaves: [],
+    hrSummary: null,
+    performance: null
+  };
+
+  function localISO(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function T(v) { const m = /(\d{1,2}):(\d{2})/.exec(String(v || '')); return m ? m[1].padStart(2, '0') + ':' + m[2] : ''; }
+
+  function todayStr() {
+    return STATE.today || localISO(new Date());
+  }
+
+  function daysAgoStr(n) {
+    const base = new Date(todayStr() + 'T00:00:00');
+    base.setDate(base.getDate() - Number(n || 0));
+    return localISO(base);
+  }
+
+  function fmt(n) {
+    return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = type;
+    t.style.display = 'block';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.style.display = 'none'; }, 3500);
+  }
+
+  function enforceMaxTodayOnInputs() {
+    const t = todayStr();
+    ['perfFrom', 'perfTo', 'stDate', 'purDate', 'expDate', 'clDate', 'empHireDate', 'attDate']
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute('max', t);
       });
-      alert(translations[currentLang].alertPriceUpdated);
-      location.reload();
+  }
+
+  function validateNotFuture(dateVal, label = 'التاريخ') {
+    if (!dateVal) return true;
+    const t = todayStr();
+    if (dateVal > t) {
+      showToast(`لا يجوز اختيار تاريخ لاحق لتاريخ اليوم (${t}) في ${label}`, 'error');
+      return false;
     }
+    return true;
+  }
 
-    async function saveMealToSheet() {
-      const t = translations[currentLang];
-      const mealName = document.getElementById('mealName').value;
-      if (!mealName) return alert(t.alertEnterName);
+  const MUTATING = a => !['login', 'logout', 'getData', 'getPerformance', 'ping', 'getBreakeven', 'getReport'].includes(a);
+  let BUSY = false;
+  async function callApi(action, payload = {}) {
+    if (!MUTATING(action)) return rawCall(action, payload);
+    if (BUSY) throw new Error('جارٍ تنفيذ عملية سابقة، انتظر لحظة ثم أعد المحاولة');
+    BUSY = true; document.body.classList.add('busy');
+    try { return await rawCall(action, payload); } finally { BUSY = false; document.body.classList.remove('busy'); }
+  }
 
-      const btn = document.getElementById('saveBtn');
-      btn.textContent = t.savingBtn;
-      
-      const ingredientsPayload = Array.from(document.querySelectorAll('#recipeBody tr')).map(row => ({
-        id: row.querySelector('.ing-select').value,
-        qty: row.querySelector('.qty-input').value
-      }));
+  async function rawCall(action, payload = {}) {
+    const body = {
+      auth: { token: STATE.token },
+      action: action,
+      payload: payload
+    };
 
-      await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'saveMeal',
-          meal_name: mealName,
-          target_fc_pct: document.getElementById('targetFcPct').value,
-          dine_in_price: document.getElementById('displayDineInPrice').textContent,
-          delivery_price: document.getElementById('displayDeliveryPrice').textContent,
-          total_cost: document.getElementById('displayTotalCost').textContent,
-          created_by: currentUser.username,
-          ingredients: ingredientsPayload
-        })
+    if (!STATE.apiUrl && typeof google !== 'undefined' && google.script && google.script.run) {
+      return new Promise((resolve, reject) => {
+        google.script.run
+          .withSuccessHandler(res => {
+            const data = typeof res === 'string' ? JSON.parse(res) : res;
+            if (data && data.error) {
+              if (String(data.error).startsWith('AUTH:')) handleAuthExpired();
+              reject(new Error(data.error.replace(/^AUTH:/, '')));
+            } else {
+              resolve(data);
+            }
+          })
+          .withFailureHandler(err => reject(err))
+          .api(body.auth, body.action, body.payload);
       });
-
-      btn.textContent = t.saveMealBtn;
-      alert(t.alertSaved);
-    }
-
-    // التحقق من وجود جلسة نشطة عند تحديث الصفحة
-    window.addEventListener('DOMContentLoaded', () => {
-      setLanguage('ar');
-      const savedUser = sessionStorage.getItem('uz_rest_user');
-      if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        unlockApp();
+    } else {
+      if (!STATE.apiUrl) {
+        throw new Error('تعذر الاتصال بالخادم، يرجى مراجعة إعدادات النشر');
       }
-    });
-  </script>
+      const ctl = new AbortController();
+      const tmo = setTimeout(() => ctl.abort(), 45000);
+      let resp;
+      try {
+        resp = await fetch(STATE.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), redirect: 'follow', signal: ctl.signal });
+      } catch (err) {
+        throw new Error(err && err.name === 'AbortError' ? 'انتهت مهلة الاتصال بالخادم، أعد المحاولة' : 'تعذر الاتصال بالخادم، تحقق من الإنترنت');
+      } finally { clearTimeout(tmo); }
+      const text = await resp.text();
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        throw new Error('استجابة غير صالحة من الخادم، تحقق من رابط وصلاحيات Web App');
+      }
+      if (data && data.error) {
+        if (String(data.error).startsWith('AUTH:')) handleAuthExpired();
+        throw new Error(String(data.error).replace(/^AUTH:/, ''));
+      }
+      return data;
+    }
+  }
+
+  function handleAuthExpired() {
+    STATE.token = '';
+    localStorage.removeItem('rest_token');
+    localStorage.removeItem('rest_cache');
+    document.getElementById('appScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+
+  async function doLogin() {
+    try {
+      const login = document.getElementById('loginUser').value.trim();
+      const password = document.getElementById('loginPass').value;
+      const res = await callApi('login', { login, password });
+      STATE.token = res.token;
+      STATE.me = res.me;
+      localStorage.setItem('rest_token', res.token);
+      initApp();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function doLogout() {
+    try { await callApi('logout'); } catch (e) {}
+    handleAuthExpired();
+  }
+
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (tabId === 'perfTab' && STATE.performance) {
+      renderInteractiveChart(STATE.performance.daily_series || []);
+    }
+  }
+
+  function switchHrSub(subId, btn) {
+    document.querySelectorAll('.hr-sub').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.sub-tabs .chip-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(subId).style.display = 'block';
+    if (btn) btn.classList.add('active');
+  }
+
+  function initDates() {
+    const t = todayStr();
+    enforceMaxTodayOnInputs();
+    document.getElementById('perfFrom').value = daysAgoStr(30);
+    document.getElementById('perfTo').value = t;
+    document.getElementById('stDate').value = t;
+    document.getElementById('purDate').value = t;
+    document.getElementById('expDate').value = t;
+    document.getElementById('clDate').value = t;
+    document.getElementById('empHireDate').value = t;
+    document.getElementById('attDate').value = t;
+    document.getElementById('lvStart').value = t;
+    document.getElementById('lvEnd').value = t;
+    document.getElementById('todayBadge').textContent = `📅 اليوم: ${t}`;
+  }
+
+  async function initApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    initDates();
+    try { const c = localStorage.getItem('rest_cache'); if (c) applyData(JSON.parse(c)); } catch (_) {}
+    await loadAllData();
+  }
+
+  async function loadAllData() {
+    try {
+      const from = document.getElementById('perfFrom').value;
+      const to = document.getElementById('perfTo').value;
+      if (!validateNotFuture(to, 'نهاية الفترة')) return;
+
+      const data = await callApi('getData', { from, to });
+      try { localStorage.setItem('rest_cache', JSON.stringify(data)); } catch (_) {}
+      applyData(data);
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function applyRoleUi() {
+    const owner = STATE.me && STATE.me.role === 'owner';
+    const f = document.getElementById('empName');
+    const card = f && f.closest('.card');
+    if (card) card.style.display = owner ? '' : 'none';
+    const sb = document.querySelector('[data-tab="settingsTab"]');
+    if (sb) sb.style.display = owner ? '' : 'none';
+    const bb = document.querySelector('[data-tab="breakevenTab"]');
+    if (bb) bb.style.display = owner ? '' : 'none';
+  }
+
+  function applyData(data) {
+    try {
+      if (data.today) {
+        STATE.today = data.today;
+        enforceMaxTodayOnInputs();
+        document.getElementById('todayBadge').textContent = `📅 اليوم: ${STATE.today}`;
+      }
+      STATE.me = data.me;
+      STATE.S = data.S || { currency: 'UZS' };
+      STATE.materials = data.materials || [];
+      STATE.meals = data.meals || [];
+      STATE.movements = data.movements || [];
+      STATE.suppliers = data.suppliers || [];
+      STATE.payables = data.payables || { list: [], total_balance: 0, overdue_total: 0 };
+      STATE.supplierPayments = data.supplierPayments || [];
+      STATE.fixedCosts = data.fixedCosts || [];
+      STATE.wasteLog = data.wasteLog || [];
+      STATE.waste = data.waste || null;
+      STATE.inventory = data.inventory || [];
+      STATE.stocktakes = data.stocktakes || [];
+      STATE.purchases = data.purchases || [];
+      STATE.expenses = data.expenses || [];
+      STATE.closings = data.closings || [];
+      STATE.employees = data.employees || [];
+      STATE.attendance = data.attendance || [];
+      STATE.leaves = data.leaves || [];
+      STATE.hrSummary = data.hrSummary || null;
+      STATE.performance = data.performance;
+
+      document.getElementById('userBadge').textContent =
+        `${STATE.me.name} (${STATE.me.role === 'owner' ? 'مالك' : 'مدير'})`;
+
+      renderMaterialsDropdowns();
+      renderMaterialsTable();
+      renderMealsTable();
+      ensureSalesBox();
+      renderLedger();
+      renderSuppliers();
+      renderFixedCosts();
+      renderWaste();
+      renderWasteNote();
+      fillSettings();
+      if (!document.querySelector('#mlIngBox .ing-row')) addIngRow();
+      renderInventoryTable();
+      renderStocktakesTable();
+      renderPurchasesTable();
+      renderExpensesTable();
+      renderClosingsTable();
+      renderEmployeesDropdowns();
+      renderHrSummary(STATE.hrSummary);
+      renderEmployeesTable();
+      renderAttendanceTable();
+      renderLeavesTable();
+      renderPerformance(STATE.performance);
+      applyRoleUi();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function setQuickRange(days, btn) {
+    document.querySelectorAll('#perfTab .chip-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const t = todayStr();
+    document.getElementById('perfTo').value = t;
+    document.getElementById('perfFrom').value = days === 0 ? t : daysAgoStr(days);
+    refreshPerformance();
+  }
+
+  async function refreshPerformance() {
+    try {
+      const from = document.getElementById('perfFrom').value;
+      const to = document.getElementById('perfTo').value;
+      if (!validateNotFuture(to, 'نهاية الفترة')) return;
+
+      const res = await callApi('getPerformance', { from, to });
+      STATE.performance = res.performance;
+      STATE.hrSummary = res.hrSummary;
+      STATE.waste = res.waste || STATE.waste;
+      renderWasteNote();
+      renderPerformance(res.performance);
+      renderHrSummary(res.hrSummary);
+      showToast('تم تحديث التقارير والأداء');
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function renderPerformance(perf) {
+    if (!perf) return;
+    const cur = STATE.S.currency || 'UZS';
+    const s = perf.sales;
+    const o = perf.outflows;
+    const invP = perf.inventory_perf || {};
+
+    document.getElementById('kpiGrossSales').textContent = `${fmt(s.gross_sales)} ${cur}`;
+    document.getElementById('kpiNetSales').textContent = `${fmt(s.net_sales)} ${cur}`;
+    document.getElementById('kpiTaxTotal').textContent = `${fmt(s.tax_total)} ${cur}`;
+
+    document.getElementById('kpiPurchases').textContent = `${fmt(o.purchases_total)} ${cur}`;
+    document.getElementById('kpiPurchPct').textContent = `${o.purchases_share_pct}%`;
+    document.getElementById('kpiPurchCount').textContent = perf.counts.purchases;
+
+    document.getElementById('kpiExpenses').textContent = `${fmt(o.expenses_total)} ${cur}`;
+    document.getElementById('kpiExpPct').textContent = `${o.expenses_share_pct}%`;
+    document.getElementById('kpiExpCount').textContent = perf.counts.expenses;
+
+    document.getElementById('kpiTotalExpenses').textContent = `${fmt(o.total_expenses)} ${cur}`;
+    document.getElementById('kpiOutRatio').textContent = `${o.expense_to_net_sales_pct}% من صافي المبيعات`;
+
+    const netFlowEl = document.getElementById('kpiNetFlow');
+    netFlowEl.textContent = `${fmt(perf.operating_net_cash_flow)} ${cur}`;
+    netFlowEl.style.color = perf.operating_net_cash_flow >= 0 ? 'var(--success)' : 'var(--danger)';
+
+    document.getElementById('kpiStockVar').textContent = `${fmt(invP.stock_variance_cost_total || 0)} ${cur}`;
+    document.getElementById('kpiStockLoss').textContent = `${fmt(invP.stock_loss_cost || 0)} ${cur}`;
+
+    document.getElementById('barTotalLabel').textContent = `${fmt(o.total_expenses)} ${cur}`;
+    document.getElementById('barPurchFill').style.width = `${o.purchases_share_pct}%`;
+    document.getElementById('barExpFill').style.width = `${o.expenses_share_pct}%`;
+    document.getElementById('legPurch').textContent = `${fmt(o.purchases_total)} ${cur} (${o.purchases_share_pct}%)`;
+    document.getElementById('legExp').textContent = `${fmt(o.expenses_total)} ${cur} (${o.expenses_share_pct}%)`;
+
+    const pCatBody = document.getElementById('perfPurchCatBody');
+    const pCats = Object.entries(o.purchases_by_category || {});
+    pCatBody.innerHTML = pCats.length
+      ? pCats.map(([k, v]) => `<tr><td>${k}</td><td><strong>${fmt(v)} ${cur}</strong></td></tr>`).join('')
+      : `<tr><td colspan="2" style="color:var(--muted);text-align:center;">لا توجد مشتريات في هذه الفترة</td></tr>`;
+
+    const eCatBody = document.getElementById('perfExpCatBody');
+    const eCats = Object.entries(o.expenses_by_category || {});
+    eCatBody.innerHTML = eCats.length
+      ? eCats.map(([k, v]) => `<tr><td>${k}</td><td><strong>${fmt(v)} ${cur}</strong></td></tr>`).join('')
+      : `<tr><td colspan="2" style="color:var(--muted);text-align:center;">لا توجد مصروفات في هذه الفترة</td></tr>`;
+
+    renderInteractiveChart(perf.daily_series || []);
+    renderPayrollNote();
+  }
+
+  function renderInteractiveChart(series) {
+    const box = document.getElementById('interactiveChart');
+    if (!box) return;
+    if (!series || !series.length) {
+      box.innerHTML = `<div style="text-align:center;color:var(--muted);padding:70px 12px;">لا توجد بيانات يومية كافية لرسم المنحنى في الفترة المحددة</div>`;
+      return;
+    }
+
+    const cur = STATE.S.currency || 'UZS';
+    const maxVal = Math.max(1, ...series.map(d => Math.max(d.sales || 0, (d.purchases || 0) + (d.expenses || 0))));
+    const colsHtml = series.map(d => {
+      const salesH = Math.round(((d.sales || 0) / maxVal) * 145);
+      const purchH = Math.round(((d.purchases || 0) / maxVal) * 145);
+      const expH = Math.round(((d.expenses || 0) / maxVal) * 145);
+      const tip = `${d.date} | مبيعات: ${fmt(d.sales)} ${cur} | مشتريات: ${fmt(d.purchases)} ${cur} | مصروفات: ${fmt(d.expenses)} ${cur}`;
+      return `
+        <div style="flex:1;min-width:46px;display:flex;flex-direction:column;align-items:center;gap:6px;" title="${tip}">
+          <div style="height:155px;display:flex;align-items:flex-end;gap:3px;width:100%;justify-content:center;border-bottom:1px solid var(--border);padding-bottom:2px;">
+            <div style="width:11px;height:${salesH}px;background:var(--primary);border-radius:4px 4px 0 0;"></div>
+            <div style="width:9px;height:${purchH}px;background:var(--purchase);border-radius:4px 4px 0 0;"></div>
+            <div style="width:9px;height:${expH}px;background:var(--expense);border-radius:4px 4px 0 0;"></div>
+          </div>
+          <span style="font-size:10.5px;color:var(--muted);font-weight:700;writing-mode:horizontal-tb;">${d.date.slice(5)}</span>
+        </div>
+      `;
+    }).join('');
+
+    box.innerHTML = `<div style="display:flex;gap:8px;overflow-x:auto;align-items:flex-end;padding-top:8px;">${colsHtml}</div>`;
+  }
+
+  function exportPerformanceCsv() {
+    if (!STATE.performance) return;
+    const p = STATE.performance;
+    const rows = [
+      ['البند', 'القيمة'],
+      ['من تاريخ', p.period.from],
+      ['إلى تاريخ', p.period.to],
+      ['إجمالي المبيعات (POS)', p.sales.gross_sales],
+      ['صافي المبيعات بعد الضريبة', p.sales.net_sales],
+      ['إجمالي الضريبة', p.sales.tax_total],
+      ['مشتريات الخامات', p.outflows.purchases_total],
+      ['المصروفات الأخرى', p.outflows.expenses_total],
+      ['إجمالي المصروفات الموحد', p.outflows.total_expenses],
+      ['صافي التدفق التشغيلي', p.operating_net_cash_flow],
+      ['أثر فروقات الجرد الدوري', (p.inventory_perf && p.inventory_perf.stock_variance_cost_total) || 0]
+    ];
+    const csv = rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `performance-report-${p.period.from || 'all'}-to-${p.period.to || 'now'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('تم تصدير التقرير بصيغة CSV');
+  }
+
+  /* ---- القوائم المنسدلة للمواد الخام ---- */
+  function renderMaterialsDropdowns() {
+    const opts = '<option value="">-- اختر الخامة --</option>' +
+      STATE.materials.map(m => `<option value="${m.id}" data-unit="${m.unit}" data-cost="${m.unit_cost}">${m.name} (${m.unit})</option>`).join('');
+
+    const purSel = document.getElementById('purMaterial');
+    if (purSel) purSel.innerHTML = opts;
+
+    const stSel = document.getElementById('stMaterial');
+    if (stSel) {
+      stSel.innerHTML = opts;
+      onSelectStocktakeMaterial();
+    }
+  }
+
+  /* ---- المخزن والجرد الدوري ---- */
+  function getStockByMaterialId(matId) {
+    return STATE.inventory.find(r => String(r.material_id) === String(matId)) || null;
+  }
+
+  function getMaterialById(matId) {
+    return STATE.materials.find(m => String(m.id) === String(matId)) || null;
+  }
+
+  function onSelectStocktakeMaterial() {
+    const sel = document.getElementById('stMaterial');
+    if (!sel) return;
+    const matId = sel.value;
+    const mat = getMaterialById(matId);
+    const inv = getStockByMaterialId(matId);
+    if (!mat) {
+      document.getElementById('stSystemQtyDisplay').value = '';
+      document.getElementById('stUnit').value = '';
+      document.getElementById('stCountedQty').value = '';
+      previewStocktakeVariance();
+      return;
+    }
+    const sysQty = inv ? Number(inv.system_qty || 0) : 0;
+    document.getElementById('stSystemQtyDisplay').value = `${sysQty} ${mat.unit}`;
+    document.getElementById('stUnit').value = mat.unit;
+    document.getElementById('stCountedQty').value = '';
+    previewStocktakeVariance();
+  }
+
+  function previewStocktakeVariance() {
+    const matId = document.getElementById('stMaterial').value;
+    const mat = getMaterialById(matId);
+    const inv = getStockByMaterialId(matId);
+    const cur = STATE.S.currency || 'UZS';
+    const prevEl = document.getElementById('stVariancePreview');
+    if (!mat) {
+      prevEl.textContent = 'الفرق المتوقع: 0 | الأثر المالي: 0';
+      return;
+    }
+    const sysQty = inv ? Number(inv.system_qty || 0) : 0;
+    const rawCounted = document.getElementById('stCountedQty').value;
+    if (rawCounted === '') { prevEl.textContent = 'أدخل الكمية الفعلية لعرض الفرق'; return; }
+    const counted = Number(rawCounted);
+    const diff = counted - sysQty;
+    const costImpact = Math.round(diff * Number(mat.unit_cost || 0));
+    prevEl.innerHTML = `الفرق المتوقع: <strong style="color:${diff < 0 ? 'var(--danger)' : 'var(--primary)'}">${diff > 0 ? '+' : ''}${diff} ${mat.unit}</strong> | الأثر المالي: <strong>${fmt(costImpact)} ${cur}</strong>`;
+  }
+
+  async function submitStocktake() {
+    try {
+      const date = document.getElementById('stDate').value;
+      if (!validateNotFuture(date, 'الجرد الدوري')) return;
+      if (!document.getElementById('stMaterial').value) return showToast('اختر الخامة أولاً', 'error');
+      if (document.getElementById('stCountedQty').value === '') return showToast('أدخل الكمية المجردة فعلياً (0 إن كان الصنف منتهياً)', 'error');
+
+      const res = await callApi('recordStocktake', {
+        date: date,
+        material_id: document.getElementById('stMaterial').value,
+        counted_qty: document.getElementById('stCountedQty').value,
+        unit: document.getElementById('stUnit').value,
+        reason: document.getElementById('stReason').value,
+        notes: document.getElementById('stNotes').value
+      });
+      document.getElementById('stNotes').value = '';
+      showToast(`تم اعتماد الجرد وتسوية المخزون (الفرق: ${res.variance_qty || 0})`);
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function updateReorder(matId) {
+    try {
+      const inp = document.getElementById(`reorder_${matId}`);
+      if (!inp) return;
+      await callApi('updateReorderLevel', { material_id: matId, reorder_level: inp.value });
+      showToast('تم تحديث حد إعادة الطلب');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function renderInventoryTable() {
+    const q = (document.getElementById('invSearch')?.value || '').trim().toLowerCase();
+    const rows = STATE.inventory.filter(r => !q || String(r.material_name || '').toLowerCase().includes(q));
+    const body = document.getElementById('inventoryTableBody');
+    body.innerHTML = rows.length
+      ? rows.map(r => {
+        const sysQ = Number(r.system_qty || 0);
+        const reord = Number(r.reorder_level || 0);
+        let statusPill = `<span class="pill pill-ok">متوفر</span>`;
+        if (sysQ <= 0) statusPill = `<span class="pill pill-bad">نافد</span>`;
+        else if (sysQ <= reord) statusPill = `<span class="pill pill-warn">قرب النفاد</span>`;
+
+        const vQty = Number(r.last_variance_qty || 0);
+        const vClass = vQty < 0 ? 'pill-bad' : (vQty > 0 ? 'pill-warn' : 'pill-ok');
+
+        return `
+          <tr>
+            <td><strong>${r.material_name}</strong></td>
+            <td>${r.category || '-'}</td>
+            <td><strong>${sysQ} ${r.unit}</strong></td>
+            <td>${reord} ${r.unit}</td>
+            <td>${statusPill}</td>
+            <td>${r.last_count_date || 'لم يُجرد بعد'}</td>
+            <td><span class="pill ${vClass}">${vQty > 0 ? '+' : ''}${vQty} ${r.unit}</span></td>
+            <td>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <input type="number" step="any" id="reorder_${r.material_id}" value="${reord}" style="width:76px;padding:5px 8px;font-size:12px;" />
+                <button class="btn btn-outline btn-sm" onclick="updateReorder('${r.material_id}')">حفظ</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('')
+      : `<tr><td colspan="8" style="text-align:center;color:var(--muted);">لا توجد أصناف في المخزن</td></tr>`;
+  }
+
+  function renderStocktakesTable() {
+    const cur = STATE.S.currency || 'UZS';
+    const body = document.getElementById('stocktakesTableBody');
+    body.innerHTML = STATE.stocktakes.length
+      ? STATE.stocktakes.map(r => {
+        const vQty = Number(r.variance_qty || 0);
+        const vClass = vQty < 0 ? 'pill-bad' : (vQty > 0 ? 'pill-warn' : 'pill-ok');
+        return `
+          <tr>
+            <td>${r.date}</td>
+            <td><strong>${r.material_name}</strong></td>
+            <td>${r.system_qty} ${r.unit}</td>
+            <td>${r.counted_qty} ${r.unit}</td>
+            <td><span class="pill ${vClass}">${vQty > 0 ? '+' : ''}${vQty} ${r.unit}</span></td>
+            <td><strong>${fmt(r.variance_cost)} ${cur}</strong></td>
+            <td>${r.reason || '-'}</td>
+            <td>${r.by}</td>
+          </tr>
+        `;
+      }).join('')
+      : `<tr><td colspan="8" style="text-align:center;color:var(--muted);">لا توجد سجلات جرد دوري</td></tr>`;
+  }
+
+  /* ---- المشتريات ---- */
+  function onSelectPurchaseMaterial() {
+    const sel = document.getElementById('purMaterial');
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) return;
+    document.getElementById('purUnit').value = opt.dataset.unit || '';
+    document.getElementById('purUnitPrice').value = opt.dataset.cost || '';
+    calcPurchaseTotal();
+  }
+
+  function calcPurchaseTotal() {
+    const q = Number(document.getElementById('purQty').value || 0);
+    const p = Number(document.getElementById('purUnitPrice').value || 0);
+    if (q > 0 && p >= 0) {
+      document.getElementById('purTotal').value = Math.round(q * p);
+    }
+  }
+
+  function onPurTotalInput() {
+    const q = Number(document.getElementById('purQty').value || 0);
+    const t = Number(document.getElementById('purTotal').value || 0);
+    if (q > 0 && t >= 0) document.getElementById('purUnitPrice').value = Math.round((t / q) * 100) / 100;
+  }
+
+  async function submitPurchase() {
+    try {
+      const date = document.getElementById('purDate').value;
+      if (!validateNotFuture(date, 'فاتورة الشراء')) return;
+
+      await callApi('addPurchase', {
+        date: date,
+        material_id: document.getElementById('purMaterial').value,
+        qty: document.getElementById('purQty').value,
+        unit: document.getElementById('purUnit').value,
+        unit_price: document.getElementById('purUnitPrice').value,
+        total_amount: document.getElementById('purTotal').value,
+        supplier: document.getElementById('purSupplier').value,
+        payment_type: document.getElementById('purPayType').value,
+        due_date: document.getElementById('purDue').value,
+        payment_source: document.getElementById('purSource').value,
+        receipt_ref: document.getElementById('purRef').value,
+        update_material_cost: document.getElementById('purUpdateCost').checked
+      });
+      document.getElementById('purQty').value = '';
+      document.getElementById('purTotal').value = '';
+      document.getElementById('purRef').value = '';
+      showToast('تم تسجيل فاتورة الشراء وتحديث المخزن');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function deletePurchase(id) {
+    if (!confirm('هل تريد حذف سجل الشراء؟ سيتم عكس الكمية من المخزن.')) return;
+    try {
+      await callApi('deletePurchase', { id });
+      showToast('تم حذف سجل الشراء');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function renderPurchasesTable() {
+    const cur = STATE.S.currency || 'UZS';
+    const isOwner = STATE.me && STATE.me.role === 'owner';
+    const body = document.getElementById('purchasesTableBody');
+    body.innerHTML = STATE.purchases.length
+      ? STATE.purchases.map(r => `
+        <tr>
+          <td>${r.date}</td>
+          <td><strong>${r.material_name}</strong></td>
+          <td>${r.qty} ${r.unit}</td>
+          <td>${fmt(r.unit_price)} ${cur}</td>
+          <td><span class="pill pill-purchase">${fmt(r.total_amount)} ${cur}</span></td>
+          <td>${r.supplier || '-'}</td>
+          <td>${r.payment_type === 'آجل' ? '<span class="pill pill-bad">آجل</span> ' : ''}${r.payment_source}</td>
+          <td>${r.by}</td>
+          <td>${isOwner ? `<button class="btn btn-danger" onclick="deletePurchase('${r.id}')">حذف</button>` : '-'}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="9" style="text-align:center;color:var(--muted);">لا توجد مشتريات مسجلة</td></tr>`;
+  }
+
+  /* ---- المصروفات ---- */
+  async function submitExpense() {
+    try {
+      const date = document.getElementById('expDate').value;
+      if (!validateNotFuture(date, 'المصروف')) return;
+
+      await callApi('addExpense', {
+        date: date,
+        category: document.getElementById('expCategory').value,
+        description: document.getElementById('expDesc').value,
+        amount: document.getElementById('expAmount').value,
+        payment_source: document.getElementById('expSource').value,
+        receipt_ref: document.getElementById('expRef').value
+      });
+      document.getElementById('expDesc').value = '';
+      document.getElementById('expAmount').value = '';
+      document.getElementById('expRef').value = '';
+      showToast('تم تسجيل المصروف بنجاح');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function deleteExpense(id) {
+    if (!confirm('هل تريد حذف هذا المصروف؟')) return;
+    try {
+      await callApi('deleteExpense', { id });
+      showToast('تم حذف المصروف');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function renderExpensesTable() {
+    const cur = STATE.S.currency || 'UZS';
+    const isOwner = STATE.me && STATE.me.role === 'owner';
+    const body = document.getElementById('expensesTableBody');
+    body.innerHTML = STATE.expenses.length
+      ? STATE.expenses.map(r => `
+        <tr>
+          <td>${r.date}</td>
+          <td><span class="pill pill-expense">${r.category}</span></td>
+          <td><strong>${r.description}</strong></td>
+          <td><strong>${fmt(r.amount)} ${cur}</strong></td>
+          <td>${r.payment_source}</td>
+          <td>${r.receipt_ref || '-'}</td>
+          <td>${r.by}</td>
+          <td>${isOwner ? `<button class="btn btn-danger" onclick="deleteExpense('${r.id}')">حذف</button>` : '-'}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="8" style="text-align:center;color:var(--muted);">لا توجد مصروفات مسجلة</td></tr>`;
+  }
+
+  /* ---- الإغلاق اليومي ---- */
+  async function submitClosing() {
+    try {
+      const date = document.getElementById('clDate').value;
+      if (!validateNotFuture(date, 'الإغلاق اليومي')) return;
+
+      await callApi('submitDailyClosing', {
+        date: date,
+        pos_sales: document.getElementById('clPos').value,
+        cash_actual: document.getElementById('clCash').value,
+        card_actual: document.getElementById('clCard').value,
+        apps_actual: document.getElementById('clApps').value,
+        petty_cash_expenses: document.getElementById('clPetty').value,
+        voids_amount: document.getElementById('clVoids').value,
+        sales_items: collectSales(),
+        notes: document.getElementById('clNotes').value
+      });
+      ['clPos','clCash','clCard','clApps','clPetty','clVoids','clNotes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('clSalesRows').innerHTML = '';
+      showToast('تم حفظ الإغلاق اليومي وإرسال التقرير');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function renderClosingsTable() {
+    const cur = STATE.S.currency || 'UZS';
+    const body = document.getElementById('closingsTableBody');
+    body.innerHTML = STATE.closings.length
+      ? STATE.closings.map(r => {
+        const collected = Number(r.cash_actual||0) + Number(r.card_actual||0) + Number(r.apps_actual||0);
+        const vClass = Number(r.cash_variance) < 0 ? 'pill-bad' : 'pill-ok';
+        return `
+        <tr>
+          <td>${r.date}</td>
+          <td><strong>${fmt(r.pos_sales)} ${cur}</strong></td>
+          <td>${fmt(collected)} ${cur}</td>
+          <td><span class="pill ${vClass}">${fmt(r.cash_variance)} ${cur}</span></td>
+          <td>${fmt(r.tax_amount)} ${cur}</td>
+          <td>${r.by}</td>
+          <td>${STATE.me && STATE.me.role === 'owner' ? `<button class=\"btn btn-danger\" onclick=\"deleteClosing('${r.id}')\">حذف</button>` : '-'}</td>
+        </tr>`;
+      }).join('')
+      : `<tr><td colspan="7" style="text-align:center;color:var(--muted);">لا توجد سجلات إغلاق</td></tr>`;
+  }
+
+  /* ---- المواد الخام ---- */
+  async function submitMaterial() {
+    try {
+      await callApi('addMaterial', {
+        name: document.getElementById('matName').value,
+        category: document.getElementById('matCat').value,
+        unit: document.getElementById('matUnit').value,
+        unit_cost: document.getElementById('matCost').value,
+        yield_pct: document.getElementById('matYield').value,
+        initial_qty: document.getElementById('matInitQty').value
+      });
+      document.getElementById('matName').value = '';
+      document.getElementById('matCost').value = '';
+      document.getElementById('matInitQty').value = '0';
+      showToast('تمت إضافة المادة الخام وتحديث المخزن');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function editMaterial(id) {
+    const m = getMaterialById(id); if (!m) return;
+    const c = prompt(`سعر الوحدة الجديد لـ ${m.name} (${m.unit})`, m.unit_cost); if (c === null) return;
+    const y = prompt('نسبة الصافي Yield % (1-100)', m.yield_pct || 100); if (y === null) return;
+    try { await callApi('updateMaterial', { id, unit_cost: c, yield_pct: y }); showToast('تم تحديث الخامة'); await loadAllData(); } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function deleteMaterial(id) {
+    if (!confirm('حذف الخامة نهائياً؟ (غير ممكن إن كانت مرتبطة بمشتريات أو وصفات)')) return;
+    try { await callApi('deleteMaterial', { id }); showToast('تم حذف الخامة'); await loadAllData(); } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function deleteClosing(id) {
+    if (!confirm('حذف سجل الإغلاق اليومي؟')) return;
+    try { await callApi('deleteClosing', { id }); showToast('تم حذف سجل الإغلاق'); await loadAllData(); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  const MOVE_LBL = { purchase: 'شراء', purchase_delete: 'حذف شراء', sale: 'بيع (وصفات)', sale_reverse: 'عكس بيع', stocktake: 'جرد', waste: 'هالك', opening: 'رصيد افتتاحي' };
+
+  /* ================= الموردون والمستحقات / التعادل / التقارير ================= */
+  function initExtraTabs() {
+    const sb = document.querySelector('[data-tab="settingsTab"]'), sec = document.getElementById('settingsTab');
+    if (!sb || !sec) return;
+    sb.insertAdjacentHTML('beforebegin',
+      '<button class="tab-btn" data-tab="suppliersTab" onclick="switchTab(\'suppliersTab\', this)">🏭 الموردون والمستحقات</button>' +
+      '<button class="tab-btn" data-tab="breakevenTab" onclick="switchTab(\'breakevenTab\', this)">🎯 نقطة التعادل</button>' +
+      '<button class="tab-btn" data-tab="reportsTab" onclick="switchTab(\'reportsTab\', this)">📑 التقارير</button>');
+    const fld = (l, i, t, x) => `<div class="field"><label>${l}</label><input type="${t || 'text'}" id="${i}" ${x || ''} /></div>`;
+    sec.insertAdjacentHTML('beforebegin', `
+    <div id="suppliersTab" class="section">
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">🏭 إضافة مورد</h2></div>
+        <div class="form-grid">${fld('اسم المورد *', 'supName')}${fld('الهاتف', 'supPhone')}${fld('ملاحظات', 'supNotes')}</div>
+        <div style="margin-top:14px;text-align:left;"><button class="btn btn-primary" onclick="saveSupplierUi()">💾 حفظ المورد</button></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">💳 المستحقات على الموردين</h3><span id="supTotals" class="pill pill-bad"></span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>المورد</th><th>الهاتف</th><th>إجمالي الآجل</th><th>المسدد</th><th>الرصيد</th><th>المتأخر</th><th>غير مستحق</th><th>1-30</th><th>31-60</th><th>+60</th><th></th></tr></thead>
+          <tbody id="supBody"></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">سجل السداد</h3></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>التاريخ</th><th>المورد</th><th>المبلغ</th><th>الطريقة</th><th>بواسطة</th><th></th></tr></thead>
+          <tbody id="supPayBody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="breakevenTab" class="section">
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">🎯 نقطة التعادل والمبيعات اليومية المطلوبة</h2></div>
+        <div class="form-grid">${fld('الشهر', 'beMonth', 'month')}${fld('أيام التشغيل في الشهر', 'beDays', 'number', 'min="1" max="31"')}${fld('الربح الشهري المستهدف', 'beTarget', 'number', 'min="0"')}${fld('تكاليف متغيرة إضافية % (عمولة توصيل...)', 'beExtra', 'number', 'min="0" max="60" step="any" value="0"')}
+          <div class="field"><label>الرواتب</label><label class="checkbox-row"><input type="checkbox" id="bePayroll" checked /> تضمين رواتب الموظفين النشطين</label></div></div>
+        <div style="margin-top:14px;text-align:left;"><button class="btn btn-primary" onclick="calcBreakeven()">🧮 احسب</button></div>
+        <div id="beResult" style="margin-top:16px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">🧾 التكاليف الثابتة الشهرية (إيجار، كهرباء، إنترنت...)</h3></div>
+        <div class="form-grid">${fld('البند *', 'fcName')}${fld('المبلغ الشهري *', 'fcAmount', 'number', 'min="0" step="any"')}</div>
+        <div style="margin:14px 0;text-align:left;"><button class="btn btn-primary" onclick="addFixedCost()">➕ إضافة بند</button></div>
+        <div class="table-wrap"><table><thead><tr><th>البند</th><th>المبلغ الشهري</th><th></th></tr></thead><tbody id="fcBody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="reportsTab" class="section">
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">📑 مركز التقارير</h2></div>
+        <div class="form-grid">
+          <div class="field"><label>التقرير</label><select id="rpType">
+            <option value="daily">المالي اليومي (مبيعات/مشتريات/مصروفات)</option><option value="suppliers">الموردون والمستحقات</option>
+            <option value="inventory">قيمة المخزون وحالته</option><option value="meals">ربحية الوجبات</option>
+            <option value="waste">الهالك والضيافة</option><option value="expenses">المصروفات حسب الفئة</option><option value="hr">الموظفون والرواتب (للمالك)</option></select></div>
+          ${fld('من', 'rpFrom', 'date')}${fld('إلى', 'rpTo', 'date')}
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="loadReport()">📊 عرض</button>
+          <button class="btn btn-outline" onclick="printReport()">🖨️ طباعة / PDF</button>
+          <button class="btn btn-outline" onclick="csvReport()">⬇️ تصدير Excel (CSV)</button>
+        </div>
+        <div id="rpOut" style="margin-top:16px;"></div>
+      </div>
+    </div>`);
+    const t = todayStr();
+    document.getElementById('rpTo').value = t; document.getElementById('rpFrom').value = t.slice(0, 8) + '01';
+    document.getElementById('beMonth').value = t.slice(0, 7);
+    // نوع الدفع الآجل في نموذج المشتريات
+    const sup = document.getElementById('purSupplier');
+    if (sup) {
+      sup.setAttribute('list', 'supList');
+      sup.closest('.field').insertAdjacentHTML('afterend',
+        '<datalist id="supList"></datalist><div class="field"><label>نوع الدفع</label><select id="purPayType"><option value="نقدي">نقدي</option><option value="آجل">آجل (ذمة على المورد)</option></select></div>' +
+        '<div class="field"><label>تاريخ الاستحقاق (للآجل)</label><input type="date" id="purDue" /></div>');
+    }
+  }
+
+  async function saveSupplierUi() {
+    try {
+      await callApi('saveSupplier', { name: document.getElementById('supName').value, phone: document.getElementById('supPhone').value, notes: document.getElementById('supNotes').value });
+      ['supName', 'supPhone', 'supNotes'].forEach(i => document.getElementById(i).value = '');
+      showToast('تم حفظ المورد'); await loadAllData();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+  function renderSuppliers() {
+    const b = document.getElementById('supBody'); if (!b) return;
+    const cur = STATE.S.currency || 'UZS', owner = STATE.me && STATE.me.role === 'owner', pay = STATE.payables;
+    document.getElementById('supList').innerHTML = (STATE.suppliers || []).map(s => `<option value="${s.name}">`).join('');
+    document.getElementById('supTotals').textContent = `المستحق: ${fmt(pay.total_balance)} ${cur} | المتأخر: ${fmt(pay.overdue_total)} ${cur}`;
+    b.innerHTML = pay.list.length ? pay.list.map(s => `<tr><td><strong>${s.name}</strong></td><td>${s.phone || '-'}</td><td>${fmt(s.total_credit)}</td><td>${fmt(s.paid)}</td>
+      <td><span class="pill ${s.balance > 0 ? 'pill-bad' : 'pill-ok'}">${fmt(s.balance)} ${cur}</span></td><td>${fmt(s.overdue)}</td><td>${fmt(s.aging.current)}</td><td>${fmt(s.aging.d30)}</td><td>${fmt(s.aging.d60)}</td><td>${fmt(s.aging.d90)}</td>
+      <td>${s.id ? (owner && s.balance > 0 ? `<button class="btn btn-primary btn-sm" onclick="paySupplier('${s.id}')">سداد</button> ` : '') + (owner ? `<button class="btn btn-danger" onclick="deleteSupplier('${s.id}')">حذف</button>` : '') : '-'}</td></tr>`).join('')
+      : '<tr><td colspan="11" style="text-align:center;color:var(--muted);">لا توجد ذمم موردين</td></tr>';
+    document.getElementById('supPayBody').innerHTML = (STATE.supplierPayments || []).length ? STATE.supplierPayments.map(r => `<tr><td>${r.date}</td><td>${r.supplier_name}</td><td>${fmt(r.amount)} ${cur}</td><td>${r.method}</td><td>${r.by}</td><td>${owner ? `<button class="btn btn-danger" onclick="deleteSupPay('${r.id}')">حذف</button>` : '-'}</td></tr>`).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--muted);">لا توجد مدفوعات</td></tr>';
+  }
+  async function paySupplier(id) {
+    const s = STATE.payables.list.find(x => String(x.id) === String(id)); if (!s) return;
+    const a = prompt(`مبلغ السداد للمورد ${s.name} (المستحق ${fmt(s.balance)})`, s.balance); if (a === null) return;
+    const m = prompt('طريقة السداد (نقدي / تحويل بنكي)', 'نقدي'); if (m === null) return;
+    try { await callApi('recordSupplierPayment', { supplier_id: id, amount: a, method: m, date: todayStr() }); showToast('تم تسجيل السداد'); await loadAllData(); } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function deleteSupPay(id) {
+    if (!confirm('حذف سجل السداد؟ سيعود المبلغ إلى ذمة المورد.')) return;
+    try { await callApi('deleteSupplierPayment', { id }); showToast('تم الحذف'); await loadAllData(); } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function deleteSupplier(id) {
+    if (!confirm('حذف المورد؟')) return;
+    try { await callApi('deleteSupplier', { id }); showToast('تم حذف المورد'); await loadAllData(); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function renderFixedCosts() {
+    const b = document.getElementById('fcBody'); if (!b) return;
+    const cur = STATE.S.currency || 'UZS';
+    b.innerHTML = (STATE.fixedCosts || []).length ? STATE.fixedCosts.map(r => `<tr><td>${r.name}</td><td>${fmt(r.amount)} ${cur}</td><td><button class="btn btn-danger" onclick="delFixedCost('${r.id}')">حذف</button></td></tr>`).join('')
+      : '<tr><td colspan="3" style="text-align:center;color:var(--muted);">أضف بنود الإيجار والمرافق لتكتمل الحسبة</td></tr>';
+  }
+  async function addFixedCost() {
+    try {
+      await callApi('saveFixedCost', { name: document.getElementById('fcName').value, amount: document.getElementById('fcAmount').value });
+      document.getElementById('fcName').value = ''; document.getElementById('fcAmount').value = '';
+      showToast('تمت إضافة البند'); await loadAllData(); calcBreakeven(true);
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function delFixedCost(id) {
+    if (!confirm('حذف البند؟')) return;
+    try { await callApi('deleteFixedCost', { id }); showToast('تم الحذف'); await loadAllData(); calcBreakeven(true); } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function calcBreakeven(silent) {
+    try {
+      const r = (await callApi('getBreakeven', { month: document.getElementById('beMonth').value, days_open: document.getElementById('beDays').value, target_profit: document.getElementById('beTarget').value, extra_var_pct: document.getElementById('beExtra').value, include_payroll: document.getElementById('bePayroll').checked })).be;
+      const cur = STATE.S.currency || 'UZS', f = v => `${fmt(v)} ${cur}`;
+      const box = (l, v, c) => `<div class="card" style="margin:0;padding:12px;"><div style="color:var(--muted);font-size:.85em;">${l}</div><div style="font-weight:800;font-size:1.15em;${c ? 'color:' + c : ''}">${v}</div></div>`;
+      const ok = r.reached, pg = Math.min(100, r.progress_pct);
+      document.getElementById('beResult').innerHTML = `
+        <div style="margin-bottom:12px;font-weight:700;">${ok ? '✅ تجاوزت نقطة التعادل هذا الشهر، وكل جنيه إضافي ربح بنسبة ' + r.contribution_margin + '%' : '⏳ لم تصل لنقطة التعادل بعد — تحتاج ' + f(r.remaining_to_breakeven) + (r.required_daily_remaining !== null ? ' (≈ ' + f(r.required_daily_remaining) + ' يومياً في الأيام المتبقية)' : '')}</div>
+        <div style="background:var(--border,#ddd);border-radius:10px;height:18px;overflow:hidden;margin-bottom:6px;"><div style="width:${pg}%;height:100%;background:${ok ? 'var(--success)' : 'var(--warning,#f59e0b)'};"></div></div>
+        <div style="margin-bottom:14px;color:var(--muted);">مبيعات الشهر حتى الآن ${f(r.mtd_sales)} = ${r.progress_pct}% من التعادل (${r.closing_days} يوم مسجل)</div>
+        <div class="form-grid">
+          ${box('التكاليف الثابتة الشهرية', f(r.fixed_total))}${box('منها رواتب', f(r.payroll_monthly))}${box('متوسط التكلفة الثابتة اليومية', f(r.daily_fixed_cost))}
+          ${box('نسبة التكاليف المتغيرة', (r.variable_ratio + r.extra_var_pct) + '%')}${box('هامش المساهمة', r.contribution_margin + '%')}
+          ${box('نقطة التعادل الشهرية', f(r.breakeven_monthly), 'var(--danger)')}${box('المبيعات اليومية للتعادل', f(r.breakeven_daily), 'var(--danger)')}
+          ${box('المبيعات اليومية لتحقيق الربح المستهدف', f(r.target_sales_daily))}${box('الربح اليومي المطلوب', f(r.daily_profit_needed))}
+          ${box('متوسط مبيعاتك اليومي الفعلي', f(r.avg_daily_sales))}${box('المبيعات المتوقعة آخر الشهر', f(r.projected_sales))}
+          ${box('الربح التقديري حتى الآن', f(r.mtd_profit_est), r.mtd_profit_est >= 0 ? 'var(--success)' : 'var(--danger)')}${box('الربح المتوقع آخر الشهر', f(r.projected_profit), r.projected_profit >= 0 ? 'var(--success)' : 'var(--danger)')}
+          ${box('هامش الأمان', r.margin_of_safety_pct + '%')}
+        </div>
+        <div style="margin-top:10px;color:var(--muted);font-size:.85em;">الحساب: التعادل = التكاليف الثابتة ÷ هامش المساهمة. المتغيرات = نسبة تكلفة الغذاء الفعلية لآخر 30 يوماً + النسبة الإضافية. صافي المبيعات بعد الضريبة حسب الإعدادات.</div>`;
+    } catch (e) { if (!silent) showToast(e.message, 'error'); else document.getElementById('beResult').innerHTML = ''; }
+  }
+
+  let RP = null;
+  async function loadReport() {
+    try {
+      const res = await callApi('getReport', { type: document.getElementById('rpType').value, from: document.getElementById('rpFrom').value, to: document.getElementById('rpTo').value });
+      RP = res.report; RP.from = res.from; RP.to = res.to;
+      const cell = v => typeof v === 'number' ? fmt(v) : (v === '' || v == null ? '-' : v);
+      document.getElementById('rpOut').innerHTML = `<h3 style="margin-bottom:6px;">${RP.title}</h3><div style="color:var(--muted);margin-bottom:10px;">الفترة: ${RP.from} → ${RP.to} | العملة: ${STATE.S.currency || 'UZS'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">${RP.summary.map(s => `<span class="pill pill-ok">${s[0]}: <strong>${cell(s[1])}</strong></span>`).join('')}</div>
+        <div class="table-wrap"><table><thead><tr>${RP.head.map(x => `<th>${x}</th>`).join('')}</tr></thead><tbody>${RP.rows.length ? RP.rows.map(r => `<tr>${r.map(c => `<td>${cell(c)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${RP.head.length}" style="text-align:center;">لا توجد بيانات في هذه الفترة</td></tr>`}</tbody></table></div>`;
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+  function printReport() {
+    if (!RP) return showToast('اعرض التقرير أولاً', 'error');
+    const w = window.open('', '_blank'); if (!w) return showToast('اسمح بالنوافذ المنبثقة للطباعة', 'error');
+    w.document.write(`<html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>${RP.title}</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #999;padding:5px 7px;text-align:right}th{background:#eee}.s{margin:10px 0;line-height:2}</style></head><body><h2>مقهى كايرو — ${RP.title}</h2><div>الفترة: ${RP.from} → ${RP.to}</div><div class="s">${document.querySelector('#rpOut div:nth-of-type(2)').innerText.replace(/\n/g, ' | ')}</div>${document.querySelector('#rpOut .table-wrap').innerHTML}</body></html>`);
+    w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+  }
+  function csvReport() {
+    if (!RP) return showToast('اعرض التقرير أولاً', 'error');
+    const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const lines = [RP.title, 'الفترة', RP.from + ' -> ' + RP.to, ''].map(x => q(x)).join(',').split('\n');
+    const csv = [q(RP.title) + ',' + q('من ' + RP.from + ' إلى ' + RP.to)].concat(RP.summary.map(s => q(s[0]) + ',' + q(s[1])), [''], [RP.head.map(q).join(',')], RP.rows.map(r => r.map(q).join(',')));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + csv.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'report-' + document.getElementById('rpType').value + '-' + RP.to + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+
+  function initExtraCards() {
+    const inv = document.getElementById('inventoryTab'); if (!inv) return;
+    inv.insertAdjacentHTML('beforeend', `
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">🗑️ تسجيل هالك / ضيافة / تالف (يخصم من المخزن)</h3></div>
+        <div class="form-grid">
+          <div class="field"><label>التاريخ</label><input type="date" id="wDate" /></div>
+          <div class="field"><label>الخامة *</label><select id="wMaterial" onchange="document.getElementById('wUnit').value = this.selectedOptions[0].dataset.unit || ''"></select></div>
+          <div class="field"><label>الكمية *</label><input type="number" min="0" step="any" id="wQty" /></div>
+          <div class="field"><label>الوحدة</label><input type="text" id="wUnit" /></div>
+          <div class="field"><label>السبب *</label><select id="wReason"><option>تالف</option><option>منتهي الصلاحية</option><option>ضيافة</option><option>مرتجع وجبة</option><option>أخرى</option></select></div>
+          <div class="field"><label>ملاحظات</label><input type="text" id="wNotes" /></div>
+        </div>
+        <div style="margin-top:14px;text-align:left;"><button class="btn btn-primary" onclick="submitWaste()">🗑️ تسجيل الهالك</button></div>
+        <div class="table-wrap" style="margin-top:14px;"><table>
+          <thead><tr><th>التاريخ</th><th>الخامة</th><th>الكمية</th><th>السبب</th><th>التكلفة</th><th>ملاحظات</th><th>بواسطة</th></tr></thead>
+          <tbody id="wasteBody"></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">📒 سجل حركة المخزون (آخر 150 حركة)</h3>
+          <input type="text" id="ldSearch" placeholder="بحث بالخامة أو النوع..." style="max-width:240px;" oninput="renderLedger()" /></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>الوقت</th><th>الخامة</th><th>النوع</th><th>التغيير</th><th>الرصيد بعد</th><th>المرجع / السبب</th><th>بواسطة</th></tr></thead>
+          <tbody id="ledgerBody"></tbody></table></div>
+      </div>`);
+    const d = document.getElementById('wDate'); d.value = todayStr(); d.setAttribute('max', todayStr());
+  }
+  function renderWaste() {
+    const sel = document.getElementById('wMaterial'); if (!sel) return;
+    const keep = sel.value;
+    sel.innerHTML = '<option value="">-- اختر الخامة --</option>' + STATE.materials.map(m => `<option value="${m.id}" data-unit="${m.unit}">${m.name} (${m.unit})</option>`).join('');
+    sel.value = keep;
+    const cur = STATE.S.currency || 'UZS';
+    document.getElementById('wasteBody').innerHTML = (STATE.wasteLog || []).length ? STATE.wasteLog.map(r => `<tr><td>${r.date}</td><td><strong>${r.material_name}</strong></td><td>${r.qty} ${r.unit}</td><td><span class="pill ${r.reason_type === 'ضيافة' ? 'pill-warn' : 'pill-bad'}">${r.reason_type}</span></td><td>${fmt(r.cost)} ${cur}</td><td>${r.notes || '-'}</td><td>${r.by}</td></tr>`).join('')
+      : '<tr><td colspan="7" style="text-align:center;color:var(--muted);">لا يوجد هالك مسجل</td></tr>';
+  }
+  async function submitWaste() {
+    try {
+      const date = document.getElementById('wDate').value;
+      if (!validateNotFuture(date, 'تسجيل الهالك')) return;
+      if (!document.getElementById('wMaterial').value) return showToast('اختر الخامة أولاً', 'error');
+      if (!(Number(document.getElementById('wQty').value) > 0)) return showToast('أدخل كمية الهالك', 'error');
+      await callApi('recordWaste', { date, material_id: document.getElementById('wMaterial').value, qty: document.getElementById('wQty').value, unit: document.getElementById('wUnit').value, reason_type: document.getElementById('wReason').value, notes: document.getElementById('wNotes').value });
+      document.getElementById('wQty').value = ''; document.getElementById('wNotes').value = '';
+      showToast('تم تسجيل الهالك وخصمه من المخزن');
+      await loadAllData();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+  function renderLedger() {
+    const b = document.getElementById('ledgerBody'); if (!b) return;
+    const q = (document.getElementById('ldSearch').value || '').trim().toLowerCase();
+    const rows = (STATE.movements || []).filter(r => !q || (String(r.material_name).toLowerCase().includes(q) || (MOVE_LBL[r.type] || r.type).includes(q)));
+    b.innerHTML = rows.length ? rows.map(r => {
+      const ch = Number(r.qty_change || 0), u = (getMaterialById(r.material_id) || {}).unit || '';
+      return `<tr><td>${r.ts}</td><td><strong>${r.material_name}</strong></td><td>${MOVE_LBL[r.type] || r.type}</td><td><span class="pill ${ch < 0 ? 'pill-bad' : 'pill-ok'}">${ch > 0 ? '+' : ''}${ch} ${u}</span></td><td>${r.balance_after} ${u}</td><td>${[r.ref, r.reason].filter(Boolean).join(' / ') || '-'}</td><td>${r.by}</td></tr>`;
+    }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted);">لا توجد حركات بعد</td></tr>';
+  }
+  function renderWasteNote() {
+    const w = STATE.waste, pf = STATE.performance, k = document.getElementById('kpiNetFlow');
+    if (!w || !pf || !k) return;
+    let n = document.getElementById('wasteNote');
+    if (!n) {
+      n = document.createElement('div'); n.id = 'wasteNote'; n.className = 'card'; n.style.cssText = 'margin-top:14px;font-weight:700;line-height:1.9';
+      const a = k.closest('.card') || k.parentElement; a.parentElement.insertBefore(n, a.nextSibling);
+    }
+    const cur = STATE.S.currency || 'UZS', det = Object.entries(w.by_reason || {}).map(([a, v]) => `${a}: ${fmt(v)}`).join(' | ');
+    n.innerHTML = `🗑️ هالك وضيافة مسجّل (${w.count} حالة): ${fmt(w.total)} ${cur}${det ? ' — ' + det : ''}<br>🔍 فاقد جرد غير مبرَّر: <span style="color:var(--danger)">${fmt((pf.inventory_perf || {}).stock_loss_cost || 0)} ${cur}</span>`;
+  }
+  async function backupNowUi() {
+    try { const r = await callApi('backupNow'); showToast('تم إنشاء النسخة: ' + r.name); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function ensureSalesBox() {
+    if (document.getElementById('clSalesBox')) return;
+    const btn = document.querySelector('[onclick="submitClosing()"]'); if (!btn) return;
+    const wrap = btn.parentElement, box = document.createElement('div');
+    box.id = 'clSalesBox'; box.style.marginTop = '14px';
+    box.innerHTML = '<h3 class="card-title" style="margin-bottom:8px;">🍽️ الوجبات المباعة اليوم (اختياري: يخصم المخزون وفق الوصفات ويحسب تكلفة الغذاء الفعلية)</h3><div id="clSalesRows"></div><button class="btn btn-outline btn-sm" onclick="addSaleRow()">➕ وجبة مباعة</button>';
+    wrap.parentElement.insertBefore(box, wrap);
+  }
+  function addSaleRow() {
+    const d = document.createElement('div'); d.className = 'form-grid sale-row'; d.style.marginBottom = '8px';
+    d.innerHTML = '<div class="field"><select class="saleMeal"><option value="">-- الوجبة --</option>' + (STATE.meals || []).map(m => `<option value="${m.id}">${m.name}</option>`).join('') +
+      '</select></div><div class="field"><input type="number" min="0" step="any" class="saleQty" placeholder="عدد المباع" /></div><div class="field"><button class="btn btn-danger btn-sm" onclick="this.closest(\'.sale-row\').remove()">✕</button></div>';
+    document.getElementById('clSalesRows').appendChild(d);
+  }
+  function collectSales() {
+    return [...document.querySelectorAll('#clSalesRows .sale-row')].map(r => ({ meal_id: r.querySelector('.saleMeal').value, qty: r.querySelector('.saleQty').value })).filter(x => x.meal_id && Number(x.qty) > 0);
+  }
+
+  function renderPayrollNote() {
+    const hr = STATE.hrSummary, pf = STATE.performance, k = document.getElementById('kpiNetFlow');
+    if (!hr || !pf || !k) return;
+    let n = document.getElementById('payrollNote');
+    if (!n) {
+      n = document.createElement('div'); n.id = 'payrollNote'; n.className = 'card'; n.style.cssText = 'margin-top:14px;font-weight:700;line-height:1.9';
+      const a = k.closest('.card') || k.parentElement; a.parentElement.insertBefore(n, a.nextSibling);
+    }
+    if (!STATE.me || STATE.me.role !== 'owner') { n.style.display = 'none'; return; }
+    n.style.display = '';
+    const cur = STATE.S.currency || 'UZS', after = pf.operating_net_cash_flow - (hr.payroll_prorated || 0);
+    n.innerHTML = `👥 رواتب الفترة التقديرية (${hr.period_days || 0} يوم): ${fmt(hr.payroll_prorated)} ${cur}<br>🏁 صافي التشغيل بعد الرواتب: <span style="color:${after >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmt(after)} ${cur}</span>`;
+  }
+
+  /* ---- الوجبات والوصفات ---- */
+  function addIngRow() {
+    const box = document.getElementById('mlIngBox'); if (!box) return;
+    const d = document.createElement('div'); d.className = 'form-grid ing-row'; d.style.marginBottom = '8px';
+    d.innerHTML = '<div class="field"><select class="ingMat" onchange="this.closest(\'.ing-row\').querySelector(\'.ingUnit\').value = this.selectedOptions[0].dataset.unit || \'\'"><option value="">-- الخامة --</option>' +
+      STATE.materials.map(m => `<option value="${m.id}" data-unit="${m.unit}">${m.name} (${m.unit})</option>`).join('') +
+      '</select></div><div class="field"><input type="number" step="any" class="ingQty" placeholder="الكمية" /></div><div class="field"><input type="text" class="ingUnit" placeholder="الوحدة" /></div><div class="field"><button class="btn btn-danger btn-sm" onclick="this.closest(\'.ing-row\').remove()">✕</button></div>';
+    box.appendChild(d);
+  }
+  async function submitMeal() {
+    try {
+      const ingredients = [...document.querySelectorAll('#mlIngBox .ing-row')].map(r => ({ material_id: r.querySelector('.ingMat').value, qty: r.querySelector('.ingQty').value, unit: r.querySelector('.ingUnit').value })).filter(x => x.material_id || x.qty);
+      await callApi('saveMeal', { name: document.getElementById('mlName').value, category: document.getElementById('mlCat').value, menu_price: document.getElementById('mlPrice').value, target_margin: document.getElementById('mlMargin').value, packaging_cost: document.getElementById('mlPack').value, ingredients });
+      ['mlName', 'mlCat', 'mlPrice', 'mlMargin', 'mlPack'].forEach(i => document.getElementById(i).value = '');
+      document.getElementById('mlIngBox').innerHTML = '';
+      showToast('تم حفظ الوجبة وحساب تكلفتها');
+      await loadAllData();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function deleteMeal(id) {
+    if (!confirm('حذف الوجبة ووصفتها؟')) return;
+    try { await callApi('deleteMeal', { id }); showToast('تم حذف الوجبة'); await loadAllData(); } catch (e) { showToast(e.message, 'error'); }
+  }
+  function renderMealsTable() {
+    const cur = STATE.S.currency || 'UZS', owner = STATE.me && STATE.me.role === 'owner';
+    const b = document.getElementById('mealsTableBody'); if (!b) return;
+    b.innerHTML = (STATE.meals || []).length ? STATE.meals.map(m => `<tr>
+      <td><strong>${m.name}</strong></td><td>${m.category}</td><td>${fmt(m.raw_cost)} ${cur}</td><td>${fmt(m.total_cost)} ${cur}</td>
+      <td>${m.menu_price > 0 ? fmt(m.menu_price) + ' ' + cur : '-'}</td><td><strong>${fmt(m.suggested_price)} ${cur}</strong></td>
+      <td>${fmt(m.net_profit)} ${cur} (${m.actual_margin_pct}%)</td>
+      <td><span class="pill ${m.food_cost_pct > 35 ? 'pill-bad' : 'pill-ok'}">${m.food_cost_pct}%</span></td>
+      <td>${owner ? `<button class="btn btn-danger" onclick="deleteMeal('${m.id}')">حذف</button>` : '-'}</td></tr>`).join('')
+      : '<tr><td colspan="9" style="text-align:center;color:var(--muted);">لا توجد وجبات بعد</td></tr>';
+  }
+
+  /* ---- الإعدادات ---- */
+  const SET_MAP = { sCurrency: 'currency', sMargin: 'default_margin', sTaxMode: 'tax_mode', sTaxPct: 'tax_pct', sOhMode: 'overhead_mode', sOhVal: 'overhead_val', sRound: 'price_rounding', sVarLimit: 'variance_alert_limit', sLargeLimit: 'large_tx_alert_limit', sStdHours: 'uz_std_monthly_hours', sOt: 'uz_overtime_multiplier', sNight: 'uz_night_multiplier', sGrace: 'uz_late_grace_min', sTgChat: 'tg_chat_id' };
+  function fillSettings() {
+    const a = document.activeElement;
+    if (a && a.closest && a.closest('#settingsTab')) return;
+    Object.entries(SET_MAP).forEach(([i, k]) => { const el = document.getElementById(i); if (el && STATE.S[k] !== undefined) el.value = STATE.S[k]; });
+  }
+  async function saveSettingsUi() {
+    try {
+      const p = {}; Object.entries(SET_MAP).forEach(([i, k]) => p[k] = document.getElementById(i).value);
+      p.tg_bot_token = document.getElementById('sTgToken').value;
+      await callApi('saveSettings', p);
+      document.getElementById('sTgToken').value = '';
+      showToast('تم حفظ الإعدادات'); await loadAllData();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function testTg() { try { await callApi('testTelegram'); showToast('تم إرسال رسالة اختبار إلى تليجرام'); } catch (e) { showToast(e.message, 'error'); } }
+  async function changePw() {
+    try {
+      await callApi('changePassword', { old_password: document.getElementById('sOldPw').value, new_password: document.getElementById('sNewPw').value });
+      document.getElementById('sOldPw').value = ''; document.getElementById('sNewPw').value = ''; showToast('تم تغيير كلمة المرور');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function renderMaterialsTable() {
+    const cur = STATE.S.currency || 'UZS';
+    const body = document.getElementById('materialsTableBody');
+    body.innerHTML = STATE.materials.length
+      ? STATE.materials.map(m => `
+        <tr>
+          <td><strong>${m.name}</strong></td>
+          <td>${m.category}</td>
+          <td>${m.unit}</td>
+          <td><strong>${fmt(m.unit_cost)} ${cur}</strong></td>
+          <td>${m.yield_pct}%</td>
+          <td>${STATE.me && STATE.me.role === 'owner' ? `<button class="btn btn-outline btn-sm" onclick="editMaterial('${m.id}')">تعديل السعر</button> <button class="btn btn-danger" onclick="deleteMaterial('${m.id}')">حذف</button>` : '-'}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="6" style="text-align:center;color:var(--muted);">لا توجد مواد خام</td></tr>`;
+  }
+
+  /* ---- الموظفون والحضور والإجازات (أوزبكستان) ---- */
+  function calcPreviewHourlyRate() {
+    const sal = Number(document.getElementById('empSalary').value || 0);
+    const std = Math.max(100, Number(document.getElementById('empStdHours').value || 166.7));
+    if (sal > 0) {
+      document.getElementById('empHourlyPreview').value = Math.round(sal / std);
+    }
+  }
+
+  function resetEmployeeForm() {
+    document.getElementById('empEditId').value = '';
+    document.getElementById('empName').value = '';
+    document.getElementById('empPos').value = '';
+    document.getElementById('empDept').value = 'المطبخ والصالة';
+    document.getElementById('empShiftName').value = 'وردية صباحية';
+    document.getElementById('empShiftStart').value = '09:00';
+    document.getElementById('empShiftEnd').value = '18:00';
+    document.getElementById('empSalary').value = '';
+    document.getElementById('empStdHours').value = STATE.S.uz_std_monthly_hours || 166.7;
+    document.getElementById('empHourlyPreview').value = '';
+    document.getElementById('empOtMult').value = STATE.S.uz_overtime_multiplier || 1.5;
+    document.getElementById('empNightMult').value = STATE.S.uz_night_multiplier || 1.5;
+    document.getElementById('empHireDate').value = todayStr();
+    document.getElementById('empStatus').value = 'نشط';
+  }
+
+  function editEmployee(id) {
+    const emp = STATE.employees.find(e => e.id === id);
+    if (!emp) return;
+    document.getElementById('empEditId').value = emp.id;
+    document.getElementById('empName').value = emp.full_name || '';
+    document.getElementById('empPos').value = emp.position || '';
+    document.getElementById('empDept').value = emp.department || 'المطبخ والصالة';
+    document.getElementById('empShiftName').value = emp.shift_name || 'وردية صباحية';
+    document.getElementById('empShiftStart').value = T(emp.shift_start) || '09:00';
+    document.getElementById('empShiftEnd').value = T(emp.shift_end) || '18:00';
+    document.getElementById('empSalary').value = emp.monthly_salary || '';
+    document.getElementById('empStdHours').value = emp.std_monthly_hours || 166.7;
+    document.getElementById('empHourlyPreview').value = emp.hourly_rate || '';
+    document.getElementById('empOtMult').value = emp.overtime_mult || 1.5;
+    document.getElementById('empNightMult').value = emp.night_mult || 1.5;
+    document.getElementById('empHireDate').value = emp.hire_date || todayStr();
+    document.getElementById('empStatus').value = emp.status || 'نشط';
+    showToast('تم تحميل بيانات الموظف للتعديل');
+  }
+
+  async function submitEmployee() {
+    try {
+      const hireDate = document.getElementById('empHireDate').value;
+      if (!validateNotFuture(hireDate, 'تاريخ التعيين')) return;
+
+      await callApi('saveEmployee', {
+        id: document.getElementById('empEditId').value || undefined,
+        full_name: document.getElementById('empName').value,
+        position: document.getElementById('empPos').value,
+        department: document.getElementById('empDept').value,
+        shift_name: document.getElementById('empShiftName').value,
+        shift_start: document.getElementById('empShiftStart').value,
+        shift_end: document.getElementById('empShiftEnd').value,
+        monthly_salary: document.getElementById('empSalary').value,
+        std_monthly_hours: document.getElementById('empStdHours').value,
+        hourly_rate: document.getElementById('empHourlyPreview').value,
+        overtime_mult: document.getElementById('empOtMult').value,
+        night_mult: document.getElementById('empNightMult').value,
+        hire_date: hireDate,
+        status: document.getElementById('empStatus').value
+      });
+      resetEmployeeForm();
+      showToast('تم حفظ بيانات الموظف والوردية');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function renderEmployeesDropdowns() {
+    const opts = '<option value="">-- اختر الموظف --</option>' +
+      STATE.employees.filter(e => (e.status || 'نشط') === 'نشط').map(e => `<option value="${e.id}" data-shift="${e.shift_name || ''}" data-start="${T(e.shift_start) || '09:00'}" data-end="${T(e.shift_end) || '18:00'}">${e.full_name} (${e.shift_name || 'وردية'})</option>`).join('');
+    const attSel = document.getElementById('attEmployee');
+    const lvSel = document.getElementById('lvEmployee');
+    if (attSel) {
+      attSel.innerHTML = opts;
+      onSelectAttEmployee();
+    }
+    if (lvSel) lvSel.innerHTML = opts;
+  }
+
+  function onSelectAttEmployee() {
+    const sel = document.getElementById('attEmployee');
+    if (!sel) return;
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) return;
+    document.getElementById('attShiftName').value = opt.dataset.shift || '';
+    document.getElementById('attCheckIn').value = opt.dataset.start || '09:00';
+    document.getElementById('attCheckOut').value = opt.dataset.end || '18:00';
+  }
+
+  async function submitAttendance() {
+    try {
+      const date = document.getElementById('attDate').value;
+      if (!validateNotFuture(date, 'الحضور والانصراف')) return;
+
+      await callApi('recordAttendance', {
+        date: date,
+        employee_id: document.getElementById('attEmployee').value,
+        status: document.getElementById('attStatus').value,
+        shift_name: document.getElementById('attShiftName').value,
+        check_in: document.getElementById('attCheckIn').value,
+        check_out: document.getElementById('attCheckOut').value,
+        manual_deduction: document.getElementById('attManualDed').value,
+        manual_bonus: document.getElementById('attManualBon').value,
+        notes: document.getElementById('attNotes').value
+      });
+      document.getElementById('attManualDed').value = '';
+      document.getElementById('attManualBon').value = '';
+      document.getElementById('attNotes').value = '';
+      showToast('تم تسجيل سجل الدوام والخصومات');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function deleteAttendance(id) {
+    if (!confirm('هل تريد حذف سجل الحضور هذا؟')) return;
+    try {
+      await callApi('deleteAttendance', { id });
+      showToast('تم حذف سجل الحضور');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function submitLeave() {
+    try {
+      const sDate = document.getElementById('lvStart').value;
+      const eDate = document.getElementById('lvEnd').value;
+      if (!sDate || !eDate) return showToast('حدد تاريخ بداية ونهاية الإجازة', 'error');
+      if (eDate < sDate) return showToast('نهاية الإجازة قبل بدايتها', 'error');
+
+      await callApi('recordLeave', {
+        employee_id: document.getElementById('lvEmployee').value,
+        leave_type: document.getElementById('lvType').value,
+        start_date: sDate,
+        end_date: eDate,
+        paid_status: document.getElementById('lvPaid').value,
+        reason: document.getElementById('lvReason').value
+      });
+      document.getElementById('lvReason').value = '';
+      showToast('تم تسجيل الإجازة بنجاح');
+      await loadAllData();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function renderHrSummary(hr) {
+    if (!hr) return;
+    const cur = STATE.S.currency || 'UZS';
+    const M = v => (STATE.me && STATE.me.role === 'owner') ? `${fmt(v)} ${cur}` : '—';
+    document.getElementById('hrEmpCount').textContent = hr.total_employees || 0;
+    document.getElementById('hrStdHours').textContent = hr.standard_monthly_hours || 166.7;
+    document.getElementById('hrBaseTotal').textContent = `${M(hr.total_base_salaries)}`;
+    document.getElementById('hrDedTotal').textContent = `${M(hr.total_deductions)}`;
+    document.getElementById('hrLateMins').textContent = hr.total_late_minutes || 0;
+    document.getElementById('hrNetTotal').textContent = `${M(hr.total_net_payroll)}`;
+    document.getElementById('hrOtHours').textContent = hr.total_overtime_hours || 0;
+    document.getElementById('hrBonTotal').textContent = `${M(hr.total_bonuses)}`;
+
+    document.getElementById('kpiHrPayroll').textContent = `${M(hr.total_net_payroll)}`;
+    document.getElementById('kpiHrDed').textContent = `${M(hr.total_deductions)}`;
+    renderPayrollNote();
+    document.getElementById('kpiHrBon').textContent = `${M(hr.total_bonuses)}`;
+  }
+
+  function renderEmployeesTable() {
+    const cur = STATE.S.currency || 'UZS';
+    const isOwner = STATE.me && STATE.me.role === 'owner';
+    const money = v => isOwner ? `${fmt(v)} ${cur}` : '—';
+    const list = (STATE.hrSummary && STATE.hrSummary.employees) || [];
+    const body = document.getElementById('employeesTableBody');
+    body.innerHTML = list.length
+      ? list.map(e => `
+        <tr>
+          <td><strong>${e.full_name}</strong></td>
+          <td>${e.position}</td>
+          <td><span class="pill pill-stock">${e.shift_name}</span> <span style="font-size:11.5px;color:var(--muted);">(${String(e.shift_window || '').split(' - ').map(T).join(' - ')})</span></td>
+          <td>${money(e.monthly_salary)}</td>
+          <td><strong>${money(e.hourly_rate)}</strong></td>
+          <td>${e.overtime_hours} س</td>
+          <td>${e.late_minutes} د</td>
+          <td><span class="pill ${e.deductions_total > 0 ? 'pill-bad' : 'pill-ok'}">${money(e.deductions_total)}</span></td>
+          <td>${money(e.bonuses_total)}</td>
+          <td><strong>${money(e.net_payable_est)}</strong></td>
+          <td>${isOwner ? `<button class="btn btn-outline btn-sm" onclick="editEmployee('${e.employee_id}')">تعديل</button>` : '-'}</td>
+        </tr>
+      `).join('')
+      : `<tr><td colspan="11" style="text-align:center;color:var(--muted);">لا يوجد موظفون مسجلون بعد</td></tr>`;
+  }
+
+  function renderAttendanceTable() {
+    const cur = STATE.S.currency || 'UZS';
+    const isOwner = STATE.me && STATE.me.role === 'owner';
+    const body = document.getElementById('attendanceTableBody');
+    body.innerHTML = STATE.attendance.length
+      ? STATE.attendance.map(a => {
+        const stClass = (a.status === 'غياب بدون إذن' || Number(a.deduction_amount) > 0) ? 'pill-warn' : 'pill-ok';
+        return `
+          <tr>
+            <td>${a.date}</td>
+            <td><strong>${a.employee_name}</strong></td>
+            <td>${a.shift_name || '-'}</td>
+            <td><span class="pill ${stClass}">${a.status}</span></td>
+            <td>${T(a.check_in) || '-'} - ${T(a.check_out) || '-'}</td>
+            <td>${a.regular_hours || 0} س</td>
+            <td>${a.overtime_hours || 0} س</td>
+            <td>${a.late_minutes || 0} د</td>
+            <td>${fmt(a.deduction_amount)} ${cur}</td>
+            <td>${fmt(a.bonus_amount)} ${cur}</td>
+            <td>${isOwner ? `<button class="btn btn-danger" onclick="deleteAttendance('${a.id}')">حذف</button>` : '-'}</td>
+          </tr>
+        `;
+      }).join('')
+      : `<tr><td colspan="11" style="text-align:center;color:var(--muted);">لا توجد سجلات حضور وانصراف</td></tr>`;
+  }
+
+  function renderLeavesTable() {
+    const body = document.getElementById('leavesTableBody');
+    body.innerHTML = STATE.leaves.length
+      ? STATE.leaves.map(l => `
+        <tr>
+          <td><strong>${l.employee_name}</strong></td>
+          <td>${l.leave_type}</td>
+          <td>${l.start_date} ← ${l.end_date}</td>
+          <td>${l.days_count} يوم</td>
+          <td><span class="pill ${l.paid_status === 'غير مدفوعة' ? 'pill-bad' : 'pill-ok'}">${l.paid_status}</span></td>
+          <td>${l.reason || '-'}</td>
+        </tr>
+      `).join('')
+      : `<tr><td colspan="6" style="text-align:center;color:var(--muted);">لا توجد إجازات مسجلة</td></tr>`;
+  }
+
+  initExtraCards();
+  initExtraTabs();
+  const _st = document.createElement('style');
+  _st.textContent = 'body.busy .btn,body.busy .chip-btn{pointer-events:none;opacity:.55}';
+  document.head.appendChild(_st);
+  document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  if (STATE.token && STATE.apiUrl) {
+    initApp();
+  }
+</script>
 </body>
 </html>
